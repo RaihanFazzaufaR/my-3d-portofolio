@@ -931,7 +931,7 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
 
   // Density Wave Star Generation (Zero artificial harmonic striping)
   for (let i = 0; i < DISTANT_GALAXY_COUNT; i++) {
-    let x = 0, y = 0, z = 0;
+    let x: number, y: number, z: number;
     let isCore = false;
 
     if (spec.type === 'ring') {
@@ -1099,7 +1099,7 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
   // 140 Soft Interstellar Gaseous Arm Puffs
   for (let g = 0; g < GALAXY_GAS_COUNT; g++) {
     const isCoreGas = g < 28;
-    let gx = 0, gy = 0, gz = 0;
+    let gx: number, gy: number, gz: number;
 
     if (isCoreGas) {
       const r = Math.pow(rng(), 1.3) * (spec.radius * 0.26);
