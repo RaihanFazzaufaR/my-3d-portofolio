@@ -7,11 +7,11 @@ export interface CommanderBioModalProps {
   onSelectPlanet: (planet: PlanetData) => void;
 }
 
-export const CommanderBioModal: React.FC<CommanderBioModalProps> = ({
+export const CommanderBioModal = React.memo(function CommanderBioModal({
   isOpen,
   onClose,
   onSelectPlanet,
-}) => {
+}: CommanderBioModalProps) {
   if (!isOpen) return null;
 
   const contactPlanet = PLANETS.find((p) => p.id === 'contact') || null;
@@ -21,7 +21,12 @@ export const CommanderBioModal: React.FC<CommanderBioModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label="Commander Bio"
-      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
+      style={{
+        transform: 'translateZ(0)',
+        willChange: 'scroll-position',
+        contain: 'paint layout',
+      }}
+      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-2xl pointer-events-auto"
     >
       <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -103,4 +108,4 @@ export const CommanderBioModal: React.FC<CommanderBioModalProps> = ({
       </div>
     </aside>
   );
-};
+});

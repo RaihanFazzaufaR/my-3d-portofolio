@@ -12,7 +12,7 @@ export interface ProjectDetailModalProps {
   onPlayHover: () => void;
 }
 
-export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
+export const ProjectDetailModal = React.memo(function ProjectDetailModal({
   planet,
   onClose,
   onPrevPlanet,
@@ -21,7 +21,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   copyStatus,
   onPlaySelect,
   onPlayHover,
-}) => {
+}: ProjectDetailModalProps) {
   const [skillFilter, setSkillFilter] = useState<string>('all');
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,12 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={planet.name}
-      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
+      style={{
+        transform: 'translateZ(0)',
+        willChange: 'scroll-position',
+        contain: 'paint layout',
+      }}
+      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-2xl pointer-events-auto"
     >
       {/* Header (Sticky / Fixed at top) */}
       <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">
@@ -96,7 +101,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             <div ref={filterDropdownRef} className="relative z-20">
               <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1.5">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" />
                   CATEGORY FILTER:
                 </span>
                 <span className="text-[10px] text-slate-500 font-mono">
@@ -233,7 +238,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       {cat.skills.map((skill, sIdx) => (
                         <div
                           key={sIdx}
-                          className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-xs font-medium text-slate-200 transition hover:border-sky-400/50"
+                          className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-xs font-medium text-slate-200 transition-colors duration-150 hover:border-sky-400/50"
                         >
                           {skill.name}
                         </div>
@@ -426,4 +431,4 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       </div>
     </aside>
   );
-};
+});

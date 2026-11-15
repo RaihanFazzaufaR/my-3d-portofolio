@@ -64,8 +64,8 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
         />
       </mesh>
 
-      {/* Sci-Fi Target Identification HUD for Sun Core (Visible only on hover when not selected) */}
-      {!isSunSelected && sunHovered && (
+      {/* Sci-Fi Target Identification HUD for Sun Core (Visible when clicked or hovered) */}
+      {(isSunSelected || sunHovered) && (
         <Html
           position={[0, 3.4, 0]}
           center
@@ -77,7 +77,7 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
               backgroundColor: 'rgba(5, 8, 22, 0.95)',
               borderColor: 'rgba(245, 158, 11, 0.7)',
               boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)',
-              transform: 'translate(0, -60%)',
+              transform: isSunSelected ? 'translate(0, -68%) scale(1.02)' : 'translate(0, -60%)',
             }}
           >
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 mb-2">

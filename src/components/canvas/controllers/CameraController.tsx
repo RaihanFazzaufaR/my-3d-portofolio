@@ -11,8 +11,8 @@ const _camTarget = new THREE.Vector3();
 const _deltaMove = new THREE.Vector3();
 const _desiredCamPos = new THREE.Vector3();
 const _vOrigin = new THREE.Vector3(0, 0, 0);
-const _vSunCam = new THREE.Vector3(1.8, 9.5, 22.0);
-const _vSunTarget = new THREE.Vector3(3.2, 0, 0);
+const _vSunCam = new THREE.Vector3(0, 9.5, 22.0);
+const _vSunTarget = new THREE.Vector3(0, 0, 0);
 const _vIntroCam = new THREE.Vector3(0, 40, 66);
 
 export interface CameraControllerProps {
@@ -40,6 +40,8 @@ export const CameraController = memo(function CameraController({
   const last3DCameraPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 35, 58));
   // Persistent horizontal azimuth angle
   const currentAzimuthRef = useRef<number>(0);
+  // View offset ratio for asymmetric framing (places target at 30% from left to accommodate 40% card)
+  const currentViewOffsetRef = useRef<number>(0);
 
   // Set up event listener on OrbitControls so user manual drag/scroll instantly stops automated transition
   useEffect(() => {
@@ -61,6 +63,36 @@ export const CameraController = memo(function CameraController({
     if (!controlsRef.current) return;
     const controls = controlsRef.current;
     const safeDelta = Math.min(delta, 0.05);
+
+    // Smoothly interpolate view offset for desktop viewport (shifts rendered scene so target at center renders at 30% from left)
+    const targetOffset = ((selectedPlanet || isSunSelected) && window.innerWidth >= 768) ? 0.20 : 0;
+    
+    // Only update camera projection matrix when view offset is actively transitioning (prevents perpetual matrix invalidation)
+    if (Math.abs(currentViewOffsetRef.current - targetOffset) > 0.0005) {
+      currentViewOffsetRef.current = THREE.MathUtils.lerp(
+        currentViewOffsetRef.current,
+        targetOffset,
+        safeDelta * 6
+      );
+
+      if (Math.abs(currentViewOffsetRef.current - targetOffset) < 0.001) {
+        currentViewOffsetRef.current = targetOffset;
+      }
+
+      const perspCam = state.camera as THREE.PerspectiveCamera;
+      if (currentViewOffsetRef.current > 0.001) {
+        perspCam.setViewOffset(
+          window.innerWidth,
+          window.innerHeight,
+          window.innerWidth * currentViewOffsetRef.current,
+          0,
+          window.innerWidth,
+          window.innerHeight
+        );
+      } else if (perspCam.view?.enabled) {
+        perspCam.clearViewOffset();
+      }
+    }
 
     // Track user's manual camera position and angle when not transitioning and not focused on a target
     if (!isTransitioningRef.current && !selectedPlanet && !isSunSelected && !isIntro) {
@@ -156,41 +188,17 @@ export const CameraController = memo(function CameraController({
 
         const offsetDist = Math.max(12.0, selectedPlanet.size * 8.5);
 
-        // Capture from slightly left side (-X) and elevated (+Y)
-        const leftAngle = -0.55; // ~31.5 degrees to the left of the frontal Z-axis for a distinct left perspective
+        // Point directly at the planet as the camera target
+        _camTarget.copy(_worldPos);
+        _camTarget.y += selectedPlanet.size * 0.18;
+
+        // Position camera: capture from a slightly left angle (-X) and elevated (+Y) for rich 3D lighting
+        const leftAngle = -0.32; // ~18.3 degrees left angle
         const distH = offsetDist * 0.94;
-        const unshiftedCamX = _worldPos.x + Math.sin(leftAngle) * distH;
-        const unshiftedCamY = _worldPos.y + offsetDist * 0.44;
-        const unshiftedCamZ = _worldPos.z + Math.cos(leftAngle) * distH;
-
-        // Camera horizontal right vector (perpendicular to line of sight from camera to planet)
-        const toPlanetX = _worldPos.x - unshiftedCamX;
-        const toPlanetZ = _worldPos.z - unshiftedCamZ;
-        const toPlanetDist = Math.hypot(toPlanetX, toPlanetZ) || 1;
-        const rightX = -(toPlanetZ / toPlanetDist);
-        const rightZ = toPlanetX / toPlanetDist;
-
-        // Exact lateral offset:
-        // The 40% card on the right leaves 60% empty space on the left.
-        // Midpoint of the 60% space is at 30% from the left edge (20% to the left of the 50% screen center).
-        // Frustum half-width at distance offsetDist: W_half = offsetDist * tan(vFov / 2) * aspect.
-        // To place the planet at 30% from the left (x = -0.40 in NDC), shift the camera target right by 0.40 * W_half.
-        const perspCam = state.camera as THREE.PerspectiveCamera;
-        const vFovRad = ((perspCam.fov || 45) * Math.PI) / 180;
-        const aspect = perspCam.aspect || (window.innerWidth / window.innerHeight);
-        const frustumHalfWidth = offsetDist * Math.tan(vFovRad / 2) * aspect;
-        const roomShift = 0.40 * frustumHalfWidth;
-
-        _camTarget.set(
-          _worldPos.x + rightX * roomShift,
-          _worldPos.y + selectedPlanet.size * 0.35,
-          _worldPos.z + rightZ * roomShift
-        );
-
         _desiredCamPos.set(
-          unshiftedCamX + rightX * roomShift,
-          unshiftedCamY,
-          unshiftedCamZ + rightZ * roomShift
+          _worldPos.x + Math.sin(leftAngle) * distH,
+          _worldPos.y + offsetDist * 0.38,
+          _worldPos.z + Math.cos(leftAngle) * distH
         );
 
         if (isTransitioningRef.current) {

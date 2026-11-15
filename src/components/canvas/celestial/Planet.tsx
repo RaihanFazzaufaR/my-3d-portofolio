@@ -123,8 +123,10 @@ export const Planet = memo(function Planet({
     if (meshRef.current) {
       meshRef.current.rotation.y += safeDelta * 0.45 * (simulationSpeed || 1);
       const targetScale = isSelected ? 1.25 : isHovered ? 1.15 : 1.0;
-      const s = THREE.MathUtils.lerp(meshRef.current.scale.x, targetScale, safeDelta * 8);
-      meshRef.current.scale.set(s, s, s);
+      if (Math.abs(meshRef.current.scale.x - targetScale) > 0.002) {
+        const s = THREE.MathUtils.lerp(meshRef.current.scale.x, targetScale, safeDelta * 8);
+        meshRef.current.scale.set(s, s, s);
+      }
     }
   });
 
@@ -216,8 +218,8 @@ export const Planet = memo(function Planet({
           <PlanetMoons moons={planet.moons} simulationSpeed={simulationSpeed} />
         )}
 
-        {/* Sci-Fi Target Identification HUD (Visible only on hover when not selected) */}
-        {!isSelected && isHovered && (
+        {/* Sci-Fi Target Identification HUD (Visible when hovered or clicked) */}
+        {(isSelected || isHovered) && (
           <Html
             position={[0, planet.size + 0.35, 0]}
             center
@@ -229,7 +231,7 @@ export const Planet = memo(function Planet({
                 backgroundColor: 'rgba(5, 8, 22, 0.95)',
                 borderColor: `${planet.color}99`,
                 boxShadow: `0 4px 20px ${planet.color}30`,
-                transform: 'translate(0, -60%)',
+                transform: isSelected ? 'translate(0, -68%) scale(1.02)' : 'translate(0, -60%)',
               }}
             >
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 mb-2">

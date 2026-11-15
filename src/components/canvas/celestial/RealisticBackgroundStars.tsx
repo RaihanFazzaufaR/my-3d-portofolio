@@ -57,16 +57,12 @@ const STAR_TIER3 = generateStarTier(TIER3_COUNT, 280, 420, 303);
 
 export const RealisticBackgroundStars = memo(function RealisticBackgroundStars() {
   const groupRef = useRef<THREE.Group>(null!);
-  const tier1MatRef = useRef<THREE.PointsMaterial>(null!);
   const particleTexture = useMemo(() => getParticleTexture(), []);
 
   useFrame((_, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.0012;
       groupRef.current.rotation.x += delta * 0.0006;
-    }
-    if (tier1MatRef.current) {
-      tier1MatRef.current.opacity = 0.92 + Math.sin(Date.now() * 0.003) * 0.08;
     }
   });
 
@@ -79,7 +75,6 @@ export const RealisticBackgroundStars = memo(function RealisticBackgroundStars()
           <bufferAttribute attach="attributes-color" args={[STAR_TIER1.colors, 3]} />
         </bufferGeometry>
         <pointsMaterial
-          ref={tier1MatRef}
           size={3.4}
           map={particleTexture}
           vertexColors
