@@ -69,7 +69,7 @@ export const SUN_DATA: SunData = {
   name: "Raihan Fazzaufa Rasendriya",
   title: "Informatics Engineering Scholar & Full-Stack Developer",
   callsign: "SYSTEM CORE // CREATOR",
-  bio: "Informatics Engineering undergraduate at Politeknik Negeri Malang specializing in backend architecture, responsive frontend systems, and normalized relational database design. Currently developing an interactive Story-Based Algorithmic Thinking web platform for elementary education as a capstone thesis research project.",
+  bio: "Informatics Engineering undergraduate at State Polytechnic of Malang specializing in backend architecture, responsive frontend systems, and normalized relational database design. Currently developing an interactive Story-Based Algorithmic Thinking web platform for elementary education as a capstone thesis research project.",
   philosophies: [
     "Clean architecture, database normalization, and high data integrity over quick hacks",
     "Seamless integration between robust backend microservices and intuitive responsive frontends",
@@ -78,7 +78,7 @@ export const SUN_DATA: SunData = {
   stats: [
     { label: "Focus", value: "Full-Stack, Database, & AI" },
     { label: "Degree", value: "D4 Informatics Eng" },
-    { label: "Institution", value: "Politeknik Negeri Malang" },
+    { label: "Institution", value: "State Polytechnic of Malang" },
     { label: "Location", value: "Batu / Malang, Indonesia" }
   ]
 };
@@ -180,7 +180,7 @@ export const PLANETS: PlanetData[] = [
       {
         year: '2025 — Present',
         role: 'Undergraduate Thesis Researcher & Developer',
-        institution: 'Politeknik Negeri Malang (POLINEMA)',
+        institution: 'State Polytechnic of Malang (POLINEMA)',
         description: 'Developing "Media Pembelajaran Algorithmic Thinking Berbasis Web Untuk Siswa SD Menggunakan Ilustrasi dan Story-Based Learning". Engineering an interactive gamified web application combining React, Inertia, Laravel, and Phaser 3 to strengthen computational thinking (sequences, loops, conditionals) without syntax complexity.',
         badges: ['Undergraduate Thesis', 'React.js', 'Inertia.js', 'Phaser 3', 'Laravel', 'ADDIE Model']
       },
@@ -208,9 +208,9 @@ export const PLANETS: PlanetData[] = [
       {
         year: '2022 — Present',
         role: 'Informatics Engineering Scholar (D4)',
-        institution: 'Politeknik Negeri Malang (POLINEMA)',
-        description: 'Pursuing Bachelor of Applied Science with a cumulative GPA of 3.87 / 4.00. Specializing in advanced database design, software architecture, object-oriented systems, and web/mobile engineering.',
-        badges: ['GPA: 3.87/4.00', 'Software Architecture', 'Data Structures', 'OOP']
+        institution: 'State Polytechnic of Malang (POLINEMA)',
+        description: 'Pursuing Bachelor of Applied Science. Specializing in advanced database design, software architecture, object-oriented systems, and web/mobile engineering.',
+        badges: ['Software Architecture', 'Data Structures', 'OOP']
       },
     ]
   },
