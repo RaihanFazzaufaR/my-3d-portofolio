@@ -50,7 +50,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={planet.name}
-      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[440px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
+      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
     >
       {/* Header (Sticky / Fixed at top) */}
       <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">

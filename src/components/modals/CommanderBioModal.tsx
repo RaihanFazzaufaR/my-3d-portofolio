@@ -21,7 +21,7 @@ export const CommanderBioModal: React.FC<CommanderBioModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label="Commander Bio"
-      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
+      className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[40%] min-w-[340px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
     >
       <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">
         <div className="flex items-center gap-3">

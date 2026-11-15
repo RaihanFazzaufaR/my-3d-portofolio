@@ -9,8 +9,10 @@ type OrbitControlsImpl = React.ComponentRef<typeof OrbitControls>;
 const _worldPos = new THREE.Vector3();
 const _camTarget = new THREE.Vector3();
 const _deltaMove = new THREE.Vector3();
+const _desiredCamPos = new THREE.Vector3();
 const _vOrigin = new THREE.Vector3(0, 0, 0);
-const _vSunCam = new THREE.Vector3(0, 9.5, 20.0);
+const _vSunCam = new THREE.Vector3(1.8, 9.5, 22.0);
+const _vSunTarget = new THREE.Vector3(3.2, 0, 0);
 const _vIntroCam = new THREE.Vector3(0, 40, 66);
 
 export interface CameraControllerProps {
@@ -152,15 +154,41 @@ export const CameraController = memo(function CameraController({
       if (group) {
         group.getWorldPosition(_worldPos);
 
-        _camTarget.copy(_worldPos);
-        _camTarget.y += selectedPlanet.size * 0.35;
+        const offsetDist = Math.max(12.0, selectedPlanet.size * 8.5);
+
+        // Capture from slightly left side (-X) and elevated (+Y)
+        const leftAngle = -0.36; // ~20 degrees to the left of the frontal Z-axis
+        const distH = offsetDist * 0.94;
+        const unshiftedCamX = _worldPos.x + Math.sin(leftAngle) * distH;
+        const unshiftedCamY = _worldPos.y + offsetDist * 0.44;
+        const unshiftedCamZ = _worldPos.z + Math.cos(leftAngle) * distH;
+
+        // Camera horizontal right vector (perpendicular to line of sight from camera to planet)
+        const toPlanetX = _worldPos.x - unshiftedCamX;
+        const toPlanetZ = _worldPos.z - unshiftedCamZ;
+        const toPlanetDist = Math.hypot(toPlanetX, toPlanetZ) || 1;
+        const rightX = -(toPlanetZ / toPlanetDist);
+        const rightZ = toPlanetX / toPlanetDist;
+
+        // Shift target and camera laterally to the right by ~28% of viewing distance
+        // This frames the planet inside the left 60% viewport, leaving generous room for the 40% info card on the right
+        const roomShift = offsetDist * 0.28;
+
+        _camTarget.set(
+          _worldPos.x + rightX * roomShift,
+          _worldPos.y + selectedPlanet.size * 0.35,
+          _worldPos.z + rightZ * roomShift
+        );
+
+        _desiredCamPos.set(
+          unshiftedCamX + rightX * roomShift,
+          unshiftedCamY,
+          unshiftedCamZ + rightZ * roomShift
+        );
 
         if (isTransitioningRef.current) {
           controls.target.lerp(_camTarget, safeDelta * 5);
-
-          const offsetDist = Math.max(12.0, selectedPlanet.size * 8.5);
-          _deltaMove.set(_worldPos.x + offsetDist * 0.52, _worldPos.y + offsetDist * 0.5, _worldPos.z + offsetDist * 0.85);
-          state.camera.position.lerp(_deltaMove, safeDelta * 3.5);
+          state.camera.position.lerp(_desiredCamPos, safeDelta * 3.5);
 
           if (controls.target.distanceTo(_camTarget) < 0.25) {
             isTransitioningRef.current = false;
@@ -185,7 +213,7 @@ export const CameraController = memo(function CameraController({
     // 4. SUN SELECTION MODE
     if (isSunSelected) {
       if (isTransitioningRef.current) {
-        controls.target.lerp(_vOrigin, safeDelta * 4);
+        controls.target.lerp(_vSunTarget, safeDelta * 4);
         state.camera.position.lerp(_vSunCam, safeDelta * 3);
         if (state.camera.position.distanceTo(_vSunCam) < 0.25) {
           isTransitioningRef.current = false;
