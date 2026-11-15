@@ -37,11 +37,9 @@ export interface MoonData {
   inclination?: number;
 }
 
-export interface PlanetData {
+export interface CelestialOrbitConfig {
   id: string;
   name: string;
-  subtitle: string;
-  sector: string;
   color: string;
   size: number;
   distance: number;
@@ -49,12 +47,19 @@ export interface PlanetData {
   hasRing?: boolean;
   hasMoon?: boolean;
   moons?: MoonData[];
+}
+
+export interface PortfolioContent {
+  subtitle: string;
+  sector: string;
   content?: string[];
   skillsData?: SkillCategory[];
   timelineData?: TimelineItem[];
   projectsData?: ProjectItem[];
   socialsData?: SocialLink[];
 }
+
+export interface PlanetData extends CelestialOrbitConfig, PortfolioContent {}
 
 export interface SunData {
   name: string;
