@@ -65,9 +65,6 @@ export const RealisticBackgroundStars = memo(function RealisticBackgroundStars()
       groupRef.current.rotation.y += delta * 0.0012;
       groupRef.current.rotation.x += delta * 0.0006;
     }
-    if (tier1MatRef.current) {
-      tier1MatRef.current.opacity = 0.92 + Math.sin(Date.now() * 0.003) * 0.08;
-    }
   });
 
   return (

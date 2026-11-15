@@ -64,8 +64,8 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
         />
       </mesh>
 
-      {/* Sci-Fi Target Identification HUD for Sun Core */}
-      {(isSunSelected || sunHovered) && (
+      {/* Sci-Fi Target Identification HUD for Sun Core (preview on hover when not selected) */}
+      {!isSunSelected && sunHovered && (
         <Html
           position={[0, 3.4, 0]}
           center

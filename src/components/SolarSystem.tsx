@@ -53,8 +53,9 @@ export const SolarSystem = memo(function SolarSystem({
 
   return (
     <Canvas
+      dpr={[1, 1.5]}
       camera={{ position: [0, 35, 58], fov: 45, near: 0.1, far: 1200 }}
-      gl={{ powerPreference: 'high-performance', antialias: true }}
+      gl={{ powerPreference: 'high-performance', antialias: true, alpha: false, stencil: false }}
       onPointerDown={(e) => {
         dragStartRef.current = { x: e.clientX, y: e.clientY };
       }}

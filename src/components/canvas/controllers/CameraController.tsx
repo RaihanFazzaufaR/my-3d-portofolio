@@ -156,9 +156,9 @@ export const CameraController = memo(function CameraController({
 
         const offsetDist = Math.max(12.0, selectedPlanet.size * 8.5);
 
-        // Capture from slightly left side (-X) and elevated (+Y)
-        const leftAngle = -0.36; // ~20 degrees to the left of the frontal Z-axis
-        const distH = offsetDist * 0.94;
+        // Capture from slightly left more (~33 degrees to the left of the frontal Z-axis)
+        const leftAngle = -0.58;
+        const distH = offsetDist * 0.92;
         const unshiftedCamX = _worldPos.x + Math.sin(leftAngle) * distH;
         const unshiftedCamY = _worldPos.y + offsetDist * 0.44;
         const unshiftedCamZ = _worldPos.z + Math.cos(leftAngle) * distH;
@@ -170,9 +170,13 @@ export const CameraController = memo(function CameraController({
         const rightX = -(toPlanetZ / toPlanetDist);
         const rightZ = toPlanetX / toPlanetDist;
 
-        // Shift target and camera laterally to the right by ~28% of viewing distance
-        // This frames the planet inside the left 60% viewport, leaving generous room for the 40% info card on the right
-        const roomShift = offsetDist * 0.28;
+        // Calculate exact horizontal shift so the planet is positioned at 30% from the left edge of the screen:
+        // With FOV = 45 deg, half-width is offsetDist * tan(22.5 deg) * aspect.
+        // Screen center is at 50%. The center of the 60% empty space is at 30% from left (i.e. -20% of screen width).
+        // In NDC (width = 2.0), -20% of total width is exactly -0.40 * W_half.
+        // 0.40 * tan(22.5 deg) = 0.40 * 0.41421356 = 0.1656854.
+        const aspect = state.viewport.aspect || (state.size.width / state.size.height) || (16 / 9);
+        const roomShift = offsetDist * 0.165685 * aspect;
 
         _camTarget.set(
           _worldPos.x + rightX * roomShift,

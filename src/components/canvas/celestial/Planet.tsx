@@ -215,8 +215,8 @@ export const Planet = memo(function Planet({
           <PlanetMoons moons={planet.moons} simulationSpeed={simulationSpeed} />
         )}
 
-        {/* Sci-Fi Target Identification HUD */}
-        {(isSelected || isHovered) && (
+        {/* Sci-Fi Target Identification HUD (preview on hover when not selected) */}
+        {!isSelected && isHovered && (
           <Html
             position={[0, planet.size + 0.35, 0]}
             center

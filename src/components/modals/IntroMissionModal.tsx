@@ -20,11 +20,11 @@ export const IntroMissionModal: React.FC<IntroMissionModalProps> = ({
       role="dialog"
       aria-modal="true"
       onClick={onClose}
-      className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-[2px] animate-in fade-in duration-200 cursor-pointer"
+      className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 animate-in fade-in duration-200 cursor-pointer"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative max-w-xl w-full p-6 sm:p-8 bg-slate-950/90 border border-cyan-500/30 rounded-3xl shadow-[0_0_80px_rgba(6,182,212,0.15)] text-center space-y-5 cursor-default backdrop-blur-xl"
+        className="relative max-w-xl w-full p-6 sm:p-8 bg-slate-950/95 border border-cyan-500/30 rounded-3xl shadow-[0_0_80px_rgba(6,182,212,0.15)] text-center space-y-5 cursor-default"
       >
         {/* Close Button [X] */}
         <button

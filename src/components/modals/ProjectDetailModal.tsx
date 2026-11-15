@@ -141,7 +141,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               {isFilterDropdownOpen && (
                 <div
                   role="listbox"
-                  className="absolute top-full left-0 right-0 mt-1.5 p-1.5 bg-slate-950/98 border border-sky-500/40 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.85)] z-30 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150 space-y-1"
+                  className="absolute top-full left-0 right-0 mt-1.5 p-1.5 bg-slate-950/98 border border-sky-500/40 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.85)] z-30 animate-in fade-in slide-in-from-top-2 duration-150 space-y-1"
                 >
                   <button
                     type="button"
