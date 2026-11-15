@@ -932,7 +932,6 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
   // Density Wave Star Generation (Zero artificial harmonic striping)
   for (let i = 0; i < DISTANT_GALAXY_COUNT; i++) {
     let x = 0, y = 0, z = 0;
-    let distR = 0;
     let isCore = false;
 
     if (spec.type === 'ring') {
@@ -1053,7 +1052,7 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
     starPositions[i * 3 + 1] = y;
     starPositions[i * 3 + 2] = z;
 
-    distR = Math.hypot(x, z);
+    const distR = Math.hypot(x, z);
 
     // Realistic Stellar Population Color Grading
     if (isCore || distR < 6.5) {
