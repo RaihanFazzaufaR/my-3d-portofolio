@@ -342,22 +342,46 @@ function getParticleTexture(): THREE.CanvasTexture {
   return cachedParticleTexture;
 }
 
-// Pre-computed static Milky Way Galaxy Spiral & Deep Space Stardust (1400 particles)
-const GALAXY_COUNT = 1400;
+// Organic Gaussian cloud puff texture for volumetric deep-space nebula rendering
+let cachedNebulaTexture: THREE.CanvasTexture | null = null;
+function getNebulaCloudTexture(): THREE.CanvasTexture {
+  if (cachedNebulaTexture) return cachedNebulaTexture;
+  if (typeof document === 'undefined') return new THREE.CanvasTexture(null as unknown as HTMLCanvasElement);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+
+  const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+  grad.addColorStop(0.25, 'rgba(255, 255, 255, 0.35)');
+  grad.addColorStop(0.55, 'rgba(255, 255, 255, 0.12)');
+  grad.addColorStop(0.8, 'rgba(255, 255, 255, 0.03)');
+  grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  cachedNebulaTexture = new THREE.CanvasTexture(canvas);
+  return cachedNebulaTexture;
+}
+
+// Pre-computed static Milky Way Galaxy Spiral & Deep Space Stardust (2000 particles)
+const GALAXY_COUNT = 2000;
 const GALAXY_POSITIONS = new Float32Array(GALAXY_COUNT * 3);
 const GALAXY_COLORS = new Float32Array(GALAXY_COUNT * 3);
 
-// Deterministic seed formula to ensure identical, stutter-free space architecture
 for (let i = 0; i < GALAXY_COUNT; i++) {
   const seed = i * 13.371;
   const rand1 = Math.abs(Math.sin(seed * 1.1)) % 1;
   const rand2 = Math.abs(Math.sin(seed * 2.3)) % 1;
   const rand3 = Math.abs(Math.sin(seed * 3.7)) % 1;
 
-  // Swirling spiral arms starting safely outside planetary zone (28 AU to 120 AU)
-  const r = 28 + Math.pow(rand1, 1.5) * 90;
+  // Swirling spiral arms starting safely outside planetary zone (28 AU to 125 AU)
+  const r = 28 + Math.pow(rand1, 1.45) * 95;
   const arm = i % 2;
-  const spin = r * 0.085;
+  const spin = r * 0.088;
   const angle = arm * Math.PI + spin + (rand2 - 0.5) * 0.85;
   const spreadY = (rand3 - 0.5) * (6 + r * 0.12);
   const spreadR = (rand2 - 0.5) * 8;
@@ -411,14 +435,12 @@ const CosmicGalaxy = memo(function CosmicGalaxy() {
 
   useFrame((_, delta) => {
     if (galaxyRef.current) {
-      // Majestic imperceptible drift across the cosmos
       galaxyRef.current.rotation.y += delta * 0.005;
     }
   });
 
   return (
     <group ref={galaxyRef} rotation={[0.42, 0.25, 0.15]}>
-      {/* Spiral Galaxy Arms & Dense Star Clusters (Zero fillrate overdraw) */}
       <points>
         <bufferGeometry>
           <bufferAttribute
@@ -431,11 +453,11 @@ const CosmicGalaxy = memo(function CosmicGalaxy() {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.22}
+          size={0.24}
           map={particleTexture}
           vertexColors
           transparent
-          opacity={0.8}
+          opacity={0.82}
           sizeAttenuation
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -445,11 +467,190 @@ const CosmicGalaxy = memo(function CosmicGalaxy() {
   );
 });
 
-// Pre-computed static Distant Deep Space Galaxies (Distinct celestial clusters far outside the solar system)
-const DISTANT_GALAXY_COUNT = 750;
+// Deep Space Colorful Cosmic Nebulae (Volumetric cloud clusters in deep space)
+interface NebulaSpec {
+  name: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  radius: number;
+  speed: number;
+  colors: [number, number, number][];
+  seedOffset: number;
+}
+
+const NEBULA_COUNT_PER_CLUSTER = 260;
+
+const NEBULA_SPECS: NebulaSpec[] = [
+  // 1. Carina Nebula (Cosmic Cliffs) - Rich Magenta, Rose & Deep Violet
+  {
+    name: 'Carina',
+    position: [-165, 95, -140],
+    rotation: [0.35, -0.2, 0.45],
+    radius: 38,
+    speed: 0.0016,
+    colors: [
+      [0.95, 0.15, 0.45], // Crimson Rose
+      [0.85, 0.22, 0.85], // Vibrant Magenta
+      [0.55, 0.25, 0.95], // Electric Violet
+      [0.98, 0.45, 0.72], // Pastel Pink
+    ],
+    seedOffset: 12.345,
+  },
+  // 2. Orion Nebula (Stellar Nursery) - Electric Cyan, Azure & Deep Turquoise
+  {
+    name: 'Orion',
+    position: [175, 110, -125],
+    rotation: [-0.4, 0.5, -0.3],
+    radius: 36,
+    speed: -0.0014,
+    colors: [
+      [0.12, 0.85, 0.95], // Electric Cyan
+      [0.08, 0.55, 0.95], // Sky Azure
+      [0.15, 0.92, 0.75], // Neon Turquoise
+      [0.45, 0.35, 0.98], // Deep Indigo
+    ],
+    seedOffset: 27.891,
+  },
+  // 3. Eagle Nebula (Pillars of Creation) - Warm Amber, Bronze Gold & Emerald Gas
+  {
+    name: 'Eagle',
+    position: [155, -90, 160],
+    rotation: [0.6, -0.35, 0.2],
+    radius: 40,
+    speed: 0.0018,
+    colors: [
+      [0.98, 0.65, 0.18], // Solar Amber
+      [0.95, 0.82, 0.22], // Brilliant Gold
+      [0.12, 0.85, 0.52], // Emerald Green
+      [0.85, 0.42, 0.15], // Fiery Bronze
+    ],
+    seedOffset: 41.567,
+  },
+  // 4. Veil Nebula (Supernova Remnant) - Electric Coral Red, Velvet Violet & Ice Blue
+  {
+    name: 'Veil',
+    position: [-170, -100, 150],
+    rotation: [-0.5, -0.45, 0.6],
+    radius: 37,
+    speed: -0.0015,
+    colors: [
+      [0.95, 0.25, 0.35], // Coral Red
+      [0.65, 0.22, 0.92], // Velvet Violet
+      [0.25, 0.75, 0.98], // Ice Blue
+      [0.92, 0.18, 0.65], // Neon Pink
+    ],
+    seedOffset: 59.231,
+  },
+];
+
+interface PrecomputedNebula {
+  positions: Float32Array;
+  colors: Float32Array;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  speed: number;
+}
+
+const PRECOMPUTED_NEBULAE: PrecomputedNebula[] = NEBULA_SPECS.map((spec) => {
+  const positions = new Float32Array(NEBULA_COUNT_PER_CLUSTER * 3);
+  const colors = new Float32Array(NEBULA_COUNT_PER_CLUSTER * 3);
+
+  for (let i = 0; i < NEBULA_COUNT_PER_CLUSTER; i++) {
+    const seed = i * spec.seedOffset;
+    const rand1 = Math.abs(Math.sin(seed * 1.41)) % 1;
+    const rand2 = Math.abs(Math.sin(seed * 2.83)) % 1;
+    const rand3 = Math.abs(Math.sin(seed * 4.77)) % 1;
+
+    // Multi-lobed organic gas distribution
+    const lobe = (i % 3) * (Math.PI * 2 / 3);
+    const r = Math.pow(rand1, 1.25) * spec.radius;
+    const theta = rand2 * Math.PI * 2;
+    const phi = (rand3 - 0.5) * Math.PI * 0.85;
+
+    // Displace outward along lobes to form dramatic clouds
+    const lx = Math.cos(theta + lobe) * Math.cos(phi) * r;
+    const ly = Math.sin(phi) * (r * 0.65);
+    const lz = Math.sin(theta + lobe) * Math.cos(phi) * (r * 1.15);
+
+    positions[i * 3] = lx;
+    positions[i * 3 + 1] = ly;
+    positions[i * 3 + 2] = lz;
+
+    // Color gradient across the cloud
+    const colorIdx = i % spec.colors.length;
+    const nextColorIdx = (colorIdx + 1) % spec.colors.length;
+    const blend = rand2;
+    const c1 = spec.colors[colorIdx];
+    const c2 = spec.colors[nextColorIdx];
+
+    colors[i * 3] = c1[0] * (1 - blend) + c2[0] * blend;
+    colors[i * 3 + 1] = c1[1] * (1 - blend) + c2[1] * blend;
+    colors[i * 3 + 2] = c1[2] * (1 - blend) + c2[2] * blend;
+  }
+
+  return {
+    positions,
+    colors,
+    position: spec.position,
+    rotation: spec.rotation,
+    speed: spec.speed,
+  };
+});
+
+const CosmicNebulae = memo(function CosmicNebulae() {
+  const groupRefs = useRef<THREE.Group[]>([]);
+  const nebulaTexture = useMemo(() => getNebulaCloudTexture(), []);
+
+  useFrame((_, delta) => {
+    PRECOMPUTED_NEBULAE.forEach((neb, idx) => {
+      const grp = groupRefs.current[idx];
+      if (grp) {
+        grp.rotation.y += delta * neb.speed;
+        grp.rotation.z += delta * (neb.speed * 0.5);
+      }
+    });
+  });
+
+  return (
+    <>
+      {PRECOMPUTED_NEBULAE.map((neb, idx) => (
+        <group key={idx} position={neb.position} rotation={neb.rotation}>
+          <group ref={(el) => { if (el) groupRefs.current[idx] = el; }}>
+            <points>
+              <bufferGeometry>
+                <bufferAttribute
+                  attach="attributes-position"
+                  args={[neb.positions, 3]}
+                />
+                <bufferAttribute
+                  attach="attributes-color"
+                  args={[neb.colors, 3]}
+                />
+              </bufferGeometry>
+              <pointsMaterial
+                size={18.0}
+                map={nebulaTexture}
+                vertexColors
+                transparent
+                opacity={0.28}
+                sizeAttenuation
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </points>
+          </group>
+        </group>
+      ))}
+    </>
+  );
+});
+
+// Pre-computed static Distant Deep Space Galaxies (7 distinct celestial galaxies far outside the solar system)
+const DISTANT_GALAXY_COUNT = 1100;
 
 interface GalaxySpec {
   name: string;
+  type: 'spiral' | 'ring' | 'barred' | 'active';
   posOffset: [number, number, number];
   rotation: [number, number, number];
   scale: number;
@@ -457,57 +658,123 @@ interface GalaxySpec {
   axis: 'x' | 'y' | 'z';
   seedOffset: number;
   radius: number;
-  colorScheme: 'warm-violet-cyan' | 'electric-azure-emerald' | 'solar-amber-rose' | 'lavender-violet-sky';
+  coreColor: string;
+  coreGlowColor: string;
+  colorScheme:
+    | 'andromeda-violet-cyan'
+    | 'whirlpool-azure-emerald'
+    | 'sombrero-amber-rose'
+    | 'triangulum-lavender-sky'
+    | 'cartwheel-sapphire-ruby'
+    | 'centaurus-fire-indigo'
+    | 'helix-neon-cyber';
 }
 
 const GALAXY_SPECS: GalaxySpec[] = [
-  // 1. Andromeda Spiral (North-West Deep Space)
+  // 1. Andromeda Spiral (North-West Deep Space) - Violet, Magenta, Cyan
   {
     name: 'Andromeda',
-    posOffset: [-170, 80, -180],
+    type: 'spiral',
+    posOffset: [-185, 90, -195],
     rotation: [0.65, -0.45, 0.3],
-    scale: 1.1,
+    scale: 1.25,
     speed: 0.0028,
     axis: 'z',
     seedOffset: 7.713,
-    radius: 36,
-    colorScheme: 'warm-violet-cyan',
+    radius: 44,
+    coreColor: '#fef08a',
+    coreGlowColor: '#eab308',
+    colorScheme: 'andromeda-violet-cyan',
   },
-  // 2. Whirlpool Spiral (North-East Deep Space)
+  // 2. Whirlpool Spiral (North-East Deep Space) - Electric Azure & Neon Emerald Knots
   {
     name: 'Whirlpool',
-    posOffset: [185, 90, -170],
+    type: 'spiral',
+    posOffset: [205, 100, -185],
     rotation: [-0.55, 0.65, -0.4],
-    scale: 1.0,
+    scale: 1.2,
     speed: -0.0032,
     axis: 'z',
     seedOffset: 19.341,
-    radius: 32,
-    colorScheme: 'electric-azure-emerald',
+    radius: 40,
+    coreColor: '#f8fafc',
+    coreGlowColor: '#38bdf8',
+    colorScheme: 'whirlpool-azure-emerald',
   },
-  // 3. Sombrero Barred Galaxy (South-West Deep Space)
+  // 3. Sombrero Barred Galaxy (South-West Deep Space) - Solar Amber & Fiery Rose Dust Disk
   {
     name: 'Sombrero',
-    posOffset: [-190, -75, 160],
+    type: 'barred',
+    posOffset: [-210, -85, 180],
     rotation: [0.85, 0.35, -0.6],
-    scale: 1.2,
+    scale: 1.35,
     speed: 0.0025,
     axis: 'y',
     seedOffset: 31.879,
-    radius: 38,
-    colorScheme: 'solar-amber-rose',
+    radius: 46,
+    coreColor: '#fde047',
+    coreGlowColor: '#f59e0b',
+    colorScheme: 'sombrero-amber-rose',
   },
-  // 4. Triangulum Pinwheel (South-East Deep Space)
+  // 4. Triangulum Pinwheel (South-East Deep Space) - Lavender, Violet & Sky Blue
   {
     name: 'Triangulum',
-    posOffset: [175, -85, 185],
+    type: 'spiral',
+    posOffset: [195, -95, 205],
     rotation: [-0.75, -0.45, 0.5],
-    scale: 0.95,
+    scale: 1.15,
     speed: -0.003,
     axis: 'x',
     seedOffset: 43.215,
-    radius: 30,
-    colorScheme: 'lavender-violet-sky',
+    radius: 38,
+    coreColor: '#f1f5f9',
+    coreGlowColor: '#c084fc',
+    colorScheme: 'triangulum-lavender-sky',
+  },
+  // 5. Cartwheel Ring Galaxy (Deep Outer Ring) - Sapphire Hub with Ruby/Rose Outer Ring
+  {
+    name: 'Cartwheel',
+    type: 'ring',
+    posOffset: [-145, -120, -195],
+    rotation: [0.45, 0.7, -0.35],
+    scale: 1.15,
+    speed: 0.0035,
+    axis: 'z',
+    seedOffset: 57.123,
+    radius: 36,
+    coreColor: '#fed7aa',
+    coreGlowColor: '#f43f5e',
+    colorScheme: 'cartwheel-sapphire-ruby',
+  },
+  // 6. Centaurus Active Lenticular - Fiery Plasma Jet & Cosmic Indigo Bulge
+  {
+    name: 'Centaurus',
+    type: 'active',
+    posOffset: [215, 55, 140],
+    rotation: [-0.65, 0.3, 0.55],
+    scale: 1.25,
+    speed: -0.0024,
+    axis: 'y',
+    seedOffset: 68.914,
+    radius: 42,
+    coreColor: '#ffffff',
+    coreGlowColor: '#f97316',
+    colorScheme: 'centaurus-fire-indigo',
+  },
+  // 7. Helix Cyber Spiral (Zenith Deep Space) - Neon Cyan & Vivid Neon Magenta
+  {
+    name: 'Helix',
+    type: 'spiral',
+    posOffset: [40, 185, 175],
+    rotation: [0.95, -0.3, 0.6],
+    scale: 1.2,
+    speed: 0.0032,
+    axis: 'z',
+    seedOffset: 82.441,
+    radius: 40,
+    coreColor: '#67e8f9',
+    coreGlowColor: '#ec4899',
+    colorScheme: 'helix-neon-cyber',
   },
 ];
 
@@ -519,6 +786,9 @@ interface PrecomputedGalaxy {
   scale: number;
   speed: number;
   axis: 'x' | 'y' | 'z';
+  coreColor: string;
+  coreGlowColor: string;
+  coreRadius: number;
 }
 
 const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
@@ -531,51 +801,161 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
     const rand2 = Math.abs(Math.sin(seed * 2.7)) % 1;
     const rand3 = Math.abs(Math.sin(seed * 4.1)) % 1;
 
-    // Concentrated towards luminous core, spreading outward
-    const r = Math.pow(rand1, 1.8) * spec.radius;
-    const arm = i % 2;
-    const spin = r * 0.18;
-    const angle = arm * Math.PI + spin + (rand2 - 0.5) * 0.65;
-    const spreadY = (rand3 - 0.5) * (1.5 + r * 0.08);
-    const spreadR = (rand2 - 0.5) * (1.5 + r * 0.1);
+    let x = 0;
+    let y = 0;
+    let z = 0;
 
-    positions[i * 3] = Math.cos(angle) * (r + spreadR);
-    positions[i * 3 + 1] = spreadY;
-    positions[i * 3 + 2] = Math.sin(angle) * (r + spreadR);
-
-    // Color gradient based on galaxy aesthetic
-    if (spec.colorScheme === 'warm-violet-cyan') {
-      if (r < 6.0) {
-        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.92; colors[i * 3 + 2] = 0.65;
-      } else if (r < 18.0) {
-        colors[i * 3] = 0.85; colors[i * 3 + 1] = 0.45; colors[i * 3 + 2] = 0.95;
+    if (spec.type === 'ring') {
+      // Cartwheel: dense hub + radiating spokes + intense starburst ring
+      if (i < 250) {
+        // Central hub
+        const r = Math.pow(rand1, 1.5) * (spec.radius * 0.22);
+        const theta = rand2 * Math.PI * 2;
+        x = Math.cos(theta) * r;
+        y = (rand3 - 0.5) * 1.8;
+        z = Math.sin(theta) * r;
+      } else if (i < 500) {
+        // Radiating spokes
+        const spoke = (i % 6) * (Math.PI / 3);
+        const spokeR = (spec.radius * 0.22) + rand1 * (spec.radius * 0.65);
+        const spokeJitter = (rand2 - 0.5) * 1.6;
+        x = Math.cos(spoke) * spokeR + Math.sin(spoke) * spokeJitter;
+        y = (rand3 - 0.5) * 1.4;
+        z = Math.sin(spoke) * spokeR - Math.cos(spoke) * spokeJitter;
       } else {
-        colors[i * 3] = 0.35; colors[i * 3 + 1] = 0.75; colors[i * 3 + 2] = 1.0;
+        // Outer intense starburst ring
+        const ringR = spec.radius * 0.88 + (rand1 - 0.5) * (spec.radius * 0.22);
+        const theta = rand2 * Math.PI * 2;
+        x = Math.cos(theta) * ringR;
+        y = (rand3 - 0.5) * 2.2;
+        z = Math.sin(theta) * ringR;
       }
-    } else if (spec.colorScheme === 'electric-azure-emerald') {
-      if (r < 5.0) {
-        colors[i * 3] = 0.95; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 0.95;
-      } else if (r < 16.0) {
-        colors[i * 3] = 0.2; colors[i * 3 + 1] = 0.85; colors[i * 3 + 2] = 0.7;
+    } else if (spec.type === 'barred') {
+      // Sombrero: dense spheroid core + sharp planar disc with prominent edge
+      if (i < 450) {
+        // Bulge
+        const r = Math.pow(rand1, 1.6) * (spec.radius * 0.38);
+        const theta = rand2 * Math.PI * 2;
+        const phi = (rand3 - 0.5) * Math.PI;
+        x = Math.cos(theta) * Math.cos(phi) * r;
+        y = Math.sin(phi) * (r * 0.65);
+        z = Math.sin(theta) * Math.cos(phi) * r;
       } else {
-        colors[i * 3] = 0.25; colors[i * 3 + 1] = 0.55; colors[i * 3 + 2] = 1.0;
+        // Flat outer disc
+        const r = (spec.radius * 0.32) + Math.pow(rand1, 1.2) * (spec.radius * 0.68);
+        const theta = rand2 * Math.PI * 2;
+        x = Math.cos(theta) * r;
+        y = (rand3 - 0.5) * (0.8 + r * 0.04);
+        z = Math.sin(theta) * r;
       }
-    } else if (spec.colorScheme === 'solar-amber-rose') {
-      if (r < 6.0) {
-        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 0.3;
-      } else if (r < 18.0) {
-        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.3; colors[i * 3 + 2] = 0.5;
+    } else if (spec.type === 'active') {
+      // Centaurus: central bulge + prominent perpendicular relativistic plasma jets
+      if (i < 300) {
+        // Relativistic bipolar jets along Y axis
+        const jetSign = (i % 2 === 0) ? 1 : -1;
+        const jetHeight = (spec.radius * 0.2) + Math.pow(rand1, 1.2) * (spec.radius * 0.95);
+        const jetSpread = (jetHeight / spec.radius) * 3.5 * rand2;
+        const jetAngle = rand3 * Math.PI * 2;
+        x = Math.cos(jetAngle) * jetSpread;
+        y = jetSign * jetHeight;
+        z = Math.sin(jetAngle) * jetSpread;
       } else {
-        colors[i * 3] = 0.8; colors[i * 3 + 1] = 0.35; colors[i * 3 + 2] = 0.85;
+        // Lenticular disk
+        const r = Math.pow(rand1, 1.5) * spec.radius;
+        const theta = rand2 * Math.PI * 2;
+        x = Math.cos(theta) * r;
+        y = (rand3 - 0.5) * (1.8 + r * 0.08);
+        z = Math.sin(theta) * r;
       }
     } else {
-      // lavender-violet-sky
-      if (r < 5.0) {
-        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
-      } else if (r < 15.0) {
-        colors[i * 3] = 0.7; colors[i * 3 + 1] = 0.4; colors[i * 3 + 2] = 0.95;
+      // Logarithmic Spiral Arms
+      const r = Math.pow(rand1, 1.7) * spec.radius;
+      const arm = i % 2;
+      const spin = r * 0.17;
+      const angle = arm * Math.PI + spin + (rand2 - 0.5) * 0.65;
+      const spreadY = (rand3 - 0.5) * (1.6 + r * 0.08);
+      const spreadR = (rand2 - 0.5) * (1.6 + r * 0.09);
+
+      x = Math.cos(angle) * (r + spreadR);
+      y = spreadY;
+      z = Math.sin(angle) * (r + spreadR);
+    }
+
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+
+    // Radius distance for color mapping
+    const distR = Math.hypot(x, z);
+
+    // Color gradient based on galaxy aesthetic
+    if (spec.colorScheme === 'andromeda-violet-cyan') {
+      if (distR < 7.0) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.94; colors[i * 3 + 2] = 0.72;
+      } else if (distR < 20.0) {
+        colors[i * 3] = 0.92; colors[i * 3 + 1] = 0.28; colors[i * 3 + 2] = 0.88;
+      } else if (distR < 32.0) {
+        colors[i * 3] = 0.68; colors[i * 3 + 1] = 0.35; colors[i * 3 + 2] = 0.98;
       } else {
-        colors[i * 3] = 0.38; colors[i * 3 + 1] = 0.65; colors[i * 3 + 2] = 0.98;
+        colors[i * 3] = 0.22; colors[i * 3 + 1] = 0.85; colors[i * 3 + 2] = 1.0;
+      }
+    } else if (spec.colorScheme === 'whirlpool-azure-emerald') {
+      if (distR < 6.0) {
+        colors[i * 3] = 0.98; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 1.0;
+      } else if (distR < 18.0) {
+        colors[i * 3] = 0.12; colors[i * 3 + 1] = 0.92; colors[i * 3 + 2] = 0.82;
+      } else if (distR < 28.0) {
+        colors[i * 3] = 0.08; colors[i * 3 + 1] = 0.88; colors[i * 3 + 2] = 0.52;
+      } else {
+        colors[i * 3] = 0.18; colors[i * 3 + 1] = 0.52; colors[i * 3 + 2] = 0.98;
+      }
+    } else if (spec.colorScheme === 'sombrero-amber-rose') {
+      if (distR < 7.0) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.85; colors[i * 3 + 2] = 0.32;
+      } else if (distR < 22.0) {
+        colors[i * 3] = 0.98; colors[i * 3 + 1] = 0.58; colors[i * 3 + 2] = 0.18;
+      } else if (distR < 35.0) {
+        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.22; colors[i * 3 + 2] = 0.42;
+      } else {
+        colors[i * 3] = 0.55; colors[i * 3 + 1] = 0.18; colors[i * 3 + 2] = 0.75;
+      }
+    } else if (spec.colorScheme === 'triangulum-lavender-sky') {
+      if (distR < 6.0) {
+        colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.98; colors[i * 3 + 2] = 1.0;
+      } else if (distR < 18.0) {
+        colors[i * 3] = 0.82; colors[i * 3 + 1] = 0.65; colors[i * 3 + 2] = 0.98;
+      } else if (distR < 28.0) {
+        colors[i * 3] = 0.62; colors[i * 3 + 1] = 0.32; colors[i * 3 + 2] = 0.95;
+      } else {
+        colors[i * 3] = 0.35; colors[i * 3 + 1] = 0.82; colors[i * 3 + 2] = 0.98;
+      }
+    } else if (spec.colorScheme === 'cartwheel-sapphire-ruby') {
+      if (distR < 8.0) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.92; colors[i * 3 + 2] = 0.6;
+      } else if (distR < 25.0) {
+        colors[i * 3] = 0.25; colors[i * 3 + 1] = 0.55; colors[i * 3 + 2] = 0.98;
+      } else {
+        colors[i * 3] = 0.98; colors[i * 3 + 1] = 0.18; colors[i * 3 + 2] = 0.58;
+      }
+    } else if (spec.colorScheme === 'centaurus-fire-indigo') {
+      if (Math.abs(y) > 12.0) {
+        // High energy polar plasma jets
+        colors[i * 3] = 0.15; colors[i * 3 + 1] = 0.75; colors[i * 3 + 2] = 1.0;
+      } else if (distR < 8.0) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.98; colors[i * 3 + 2] = 0.85;
+      } else if (distR < 22.0) {
+        colors[i * 3] = 0.98; colors[i * 3 + 1] = 0.48; colors[i * 3 + 2] = 0.15;
+      } else {
+        colors[i * 3] = 0.52; colors[i * 3 + 1] = 0.25; colors[i * 3 + 2] = 0.92;
+      }
+    } else {
+      // helix-neon-cyber
+      if (distR < 6.0) {
+        colors[i * 3] = 0.0; colors[i * 3 + 1] = 0.95; colors[i * 3 + 2] = 1.0;
+      } else if (i % 2 === 0) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.05; colors[i * 3 + 2] = 0.55;
+      } else {
+        colors[i * 3] = 0.05; colors[i * 3 + 1] = 0.98; colors[i * 3 + 2] = 0.82;
       }
     }
   }
@@ -588,6 +968,9 @@ const PRECOMPUTED_GALAXIES: PrecomputedGalaxy[] = GALAXY_SPECS.map((spec) => {
     scale: spec.scale,
     speed: spec.speed,
     axis: spec.axis,
+    coreColor: spec.coreColor,
+    coreGlowColor: spec.coreGlowColor,
+    coreRadius: spec.radius * 0.065,
   };
 });
 
@@ -612,6 +995,29 @@ const DistantGalaxies = memo(function DistantGalaxies() {
       {PRECOMPUTED_GALAXIES.map((g, idx) => (
         <group key={idx} position={g.position} rotation={g.rotation} scale={g.scale}>
           <group ref={(el) => { if (el) groupRefs.current[idx] = el; }}>
+            {/* Brilliant Nuclear Core Glow */}
+            <mesh>
+              <sphereGeometry args={[g.coreRadius, 16, 16]} />
+              <meshBasicMaterial
+                color={g.coreColor}
+                transparent
+                opacity={0.92}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </mesh>
+            <mesh>
+              <sphereGeometry args={[g.coreRadius * 2.2, 16, 16]} />
+              <meshBasicMaterial
+                color={g.coreGlowColor}
+                transparent
+                opacity={0.45}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </mesh>
+
+            {/* Galactic Starfield & Gas Spirals */}
             <points>
               <bufferGeometry>
                 <bufferAttribute
@@ -624,11 +1030,11 @@ const DistantGalaxies = memo(function DistantGalaxies() {
                 />
               </bufferGeometry>
               <pointsMaterial
-                size={0.36}
+                size={0.42}
                 map={particleTexture}
                 vertexColors
                 transparent
-                opacity={0.88}
+                opacity={0.92}
                 sizeAttenuation
                 blending={THREE.AdditiveBlending}
                 depthWrite={false}
@@ -641,7 +1047,174 @@ const DistantGalaxies = memo(function DistantGalaxies() {
   );
 });
 
-// Reusable static vectors to prevent runtime GC memory allocations during useFrame
+// Occasional Streaking Cosmic Comet
+const COMET_TAIL_COUNT = 65;
+
+const CosmicComet = memo(function CosmicComet() {
+  const groupRef = useRef<THREE.Group>(null!);
+  const lightRef = useRef<THREE.PointLight>(null!);
+  const tailGeoRef = useRef<THREE.BufferGeometry>(null!);
+  const particleTexture = useMemo(() => getParticleTexture(), []);
+
+  // Pre-allocated buffers for tail particles to eliminate GC during animation
+  const { tailPositions, tailColors } = useMemo(() => {
+    const pos = new Float32Array(COMET_TAIL_COUNT * 3);
+    const col = new Float32Array(COMET_TAIL_COUNT * 3);
+    for (let i = 0; i < COMET_TAIL_COUNT; i++) {
+      const t = i / (COMET_TAIL_COUNT - 1);
+      // Front of tail: bright white-cyan, transitioning to deep cosmic sapphire and violet
+      if (t < 0.2) {
+        col[i * 3] = 0.95;
+        col[i * 3 + 1] = 0.98;
+        col[i * 3 + 2] = 1.0;
+      } else if (t < 0.55) {
+        col[i * 3] = 0.22;
+        col[i * 3 + 1] = 0.82;
+        col[i * 3 + 2] = 1.0;
+      } else {
+        const fade = 1 - (t - 0.55) / 0.45;
+        col[i * 3] = 0.55 * fade;
+        col[i * 3 + 1] = 0.25 * fade;
+        col[i * 3 + 2] = 0.95 * fade;
+      }
+    }
+    return { tailPositions: pos, tailColors: col };
+  }, []);
+
+  const timeRef = useRef(0);
+
+  useFrame((_, delta) => {
+    const safeDelta = Math.min(delta, 0.05);
+    timeRef.current += safeDelta;
+    const CYCLE_DURATION = 26.0; // 26 seconds total cycle
+    const STREAK_DURATION = 9.0;  // 9 seconds active swooping flyby
+
+    const cycleTime = timeRef.current % CYCLE_DURATION;
+    const passIndex = Math.floor(timeRef.current / CYCLE_DURATION);
+    const passAngle = passIndex * 1.57; // Varies trajectory angle each cycle
+
+    if (cycleTime < STREAK_DURATION) {
+      const p = cycleTime / STREAK_DURATION; // 0 to 1
+      const u = (p - 0.5) * 2; // -1 to 1
+
+      // Hyperbolic swoop across the solar system outer edge
+      const rawX = u * 115;
+      const rawY = 32 - (1 - u * u) * 44; // Dips down gracefully then arcs back up
+      const rawZ = u * 90 + (1 - u * u) * 28;
+
+      // Rotate trajectory according to this pass angle
+      const cosA = Math.cos(passAngle);
+      const sinA = Math.sin(passAngle);
+      const posX = rawX * cosA - rawZ * sinA;
+      const posZ = rawX * sinA + rawZ * cosA;
+      const posY = rawY;
+
+      if (groupRef.current) {
+        groupRef.current.position.set(posX, posY, posZ);
+      }
+
+      if (lightRef.current) {
+        lightRef.current.intensity = (1 - Math.abs(u)) * 3.5 + 0.8;
+      }
+
+      // Compute velocity vector tangent for tail alignment
+      const du = 0.01;
+      const nextU = u + du;
+      const nextRawX = nextU * 115;
+      const nextRawY = 32 - (1 - nextU * nextU) * 44;
+      const nextRawZ = nextU * 90 + (1 - nextU * nextU) * 28;
+      const nextPosX = nextRawX * cosA - nextRawZ * sinA;
+      const nextPosZ = nextRawX * sinA + nextRawZ * cosA;
+      const nextPosY = nextRawY;
+
+      let vx = nextPosX - posX;
+      let vy = nextPosY - posY;
+      let vz = nextPosZ - posZ;
+      const vLen = Math.hypot(vx, vy, vz) || 1;
+      vx /= vLen; vy /= vLen; vz /= vLen;
+
+      // Update tail positions trailing backward from the comet nucleus
+      for (let i = 0; i < COMET_TAIL_COUNT; i++) {
+        const trailDist = i * 0.48;
+        const spread = (i / COMET_TAIL_COUNT) * 1.2;
+        const jx = Math.sin(i * 9.1 + timeRef.current * 12) * spread;
+        const jy = Math.cos(i * 7.3 + timeRef.current * 12) * spread;
+        const jz = Math.sin(i * 5.7 + timeRef.current * 12) * spread;
+
+        tailPositions[i * 3] = posX - vx * trailDist + jx;
+        tailPositions[i * 3 + 1] = posY - vy * trailDist + jy;
+        tailPositions[i * 3 + 2] = posZ - vz * trailDist + jz;
+      }
+
+      if (tailGeoRef.current) {
+        tailGeoRef.current.attributes.position.needsUpdate = true;
+      }
+    } else {
+      // Inactive window: hide comet in outer space
+      if (groupRef.current) {
+        groupRef.current.position.set(0, -9999, 0);
+      }
+      if (lightRef.current) {
+        lightRef.current.intensity = 0;
+      }
+      for (let i = 0; i < COMET_TAIL_COUNT; i++) {
+        tailPositions[i * 3 + 1] = -9999;
+      }
+      if (tailGeoRef.current) {
+        tailGeoRef.current.attributes.position.needsUpdate = true;
+      }
+    }
+  });
+
+  return (
+    <group>
+      {/* Comet Nucleus & Coma Glow */}
+      <group ref={groupRef} position={[0, -9999, 0]}>
+        <mesh>
+          <sphereGeometry args={[0.35, 16, 16]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+        <mesh>
+          <sphereGeometry args={[0.85, 16, 16]} />
+          <meshBasicMaterial
+            color="#67e8f9"
+            transparent
+            opacity={0.65}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+        <pointLight ref={lightRef} color="#38bdf8" intensity={0} distance={30} decay={2} />
+      </group>
+
+      {/* Comet Tail Particles */}
+      <points>
+        <bufferGeometry ref={tailGeoRef}>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[tailPositions, 3]}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            args={[tailColors, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.65}
+          map={particleTexture}
+          vertexColors
+          transparent
+          opacity={0.88}
+          sizeAttenuation
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </points>
+    </group>
+  );
+});
+
+
 const _worldPos = new THREE.Vector3();
 const _camTarget = new THREE.Vector3();
 const _deltaMove = new THREE.Vector3();
@@ -1029,11 +1602,17 @@ const SolarSystem = memo(function SolarSystem({
       {/* Deep Space Background Starfield */}
       <Stars radius={280} depth={120} count={2400} factor={4} fade speed={0.15} />
 
+      {/* Vast Colorful Cosmic Nebulae (Volumetric cloud clusters in deep space) */}
+      <CosmicNebulae />
+
       {/* Lightweight Cosmic Galaxy Spiral Arms (Single draw call, zero overdraw) */}
       <CosmicGalaxy />
 
-      {/* Distinct Distant Galaxies far outside the Solar System */}
+      {/* Distinct Distant Galaxies far outside the Solar System (7 colorful galaxies with core glow) */}
       <DistantGalaxies />
+
+      {/* Occasional Streaking Cosmic Comet */}
+      <CosmicComet />
 
       {/* The Sun / Portfolio Core */}
       <Sun isSunSelected={isSunSelected} onSelectSun={onSelectSun} />
