@@ -1212,7 +1212,7 @@ const DistantGalaxies = memo(function DistantGalaxies() {
 // ----------------------------------------------------------------------------------
 // Realistic Astronomical Comet with Sub-Stepped Continuous Luminous Trail
 // ----------------------------------------------------------------------------------
-const TRAIL_POOL_SIZE = 480;
+const TRAIL_POOL_SIZE = 900;
 
 const CosmicComet = memo(function CosmicComet() {
   const lightRef = useRef<THREE.PointLight>(null!);
@@ -1221,9 +1221,9 @@ const CosmicComet = memo(function CosmicComet() {
 
   const particleTexture = useMemo(() => getParticleTexture(), []);
 
-  // Pre-allocated head buffer
-  const headPosition = useMemo(() => new Float32Array([0, -9999, 0]), []);
-  const headColor = useMemo(() => new Float32Array([1.0, 1.0, 1.0]), []);
+  // Pre-allocated head buffer (2 points: brilliant core point + soft luminous coma)
+  const headPositions = useMemo(() => new Float32Array([0, -9999, 0, 0, -9999, 0]), []);
+  const headColors = useMemo(() => new Float32Array([1.0, 1.0, 1.0, 0.4, 0.9, 1.0]), []);
 
   // Pre-allocated circular pool for trail particles (zero GC)
   const { trailPositions, trailColors, trailAges, trailLifetimes, trailDrift } = useMemo(() => {
@@ -1236,7 +1236,7 @@ const CosmicComet = memo(function CosmicComet() {
     for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
       pos[i * 3 + 1] = -9999;
       ages[i] = 9999;
-      lifes[i] = 3.2;
+      lifes[i] = 2.6;
     }
 
     return {
@@ -1256,8 +1256,9 @@ const CosmicComet = memo(function CosmicComet() {
     const safeDelta = Math.min(delta, 0.05);
     timeRef.current += safeDelta;
 
-    const CYCLE_DURATION = 28.0; // 28s total cycle
-    const STREAK_DURATION = 9.0;  // 9s active flyby
+    // Fast, frequent flyby cycle: 10s total (7s active flyby, 3s pause)
+    const CYCLE_DURATION = 10.0;
+    const STREAK_DURATION = 7.0;
 
     const cycleTime = timeRef.current % CYCLE_DURATION;
     const passIndex = Math.floor(timeRef.current / CYCLE_DURATION);
@@ -1269,10 +1270,11 @@ const CosmicComet = memo(function CosmicComet() {
       const p = cycleTime / STREAK_DURATION; // 0 to 1
       const u = (p - 0.5) * 2; // -1 to 1
 
-      // Hyperbolic swoop through cosmic space
-      const rawX = u * 125;
-      const rawY = 35 - (1 - u * u) * 50;
-      const rawZ = u * 98 + (1 - u * u) * 32;
+      // Hyperbolic swoop through solar system space
+      // Closest approach u=0 dips to (0, -12, 28) right in front of camera
+      const rawX = u * 115;
+      const rawY = 30 - (1 - u * u) * 44;
+      const rawZ = u * 88 + (1 - u * u) * 26;
 
       const cosA = Math.cos(passAngle);
       const sinA = Math.sin(passAngle);
@@ -1280,10 +1282,13 @@ const CosmicComet = memo(function CosmicComet() {
       const currZ = rawX * sinA + rawZ * cosA;
       const currY = rawY;
 
-      // Update blazing nucleus head
-      headPosition[0] = currX;
-      headPosition[1] = currY;
-      headPosition[2] = currZ;
+      // Update head points (both core and coma)
+      headPositions[0] = currX;
+      headPositions[1] = currY;
+      headPositions[2] = currZ;
+      headPositions[3] = currX;
+      headPositions[4] = currY;
+      headPositions[5] = currZ;
 
       if (headGeoRef.current) {
         headGeoRef.current.attributes.position.needsUpdate = true;
@@ -1295,17 +1300,16 @@ const CosmicComet = memo(function CosmicComet() {
       }
 
       // SUB-STEP INTERPOLATION: Eliminates discrete dot spawning gaps!
-      // Interpolates multiple positions along the swept vector between prevPos and currPos
       if (prevPosRef.current) {
         const pX = prevPosRef.current.x;
         const pY = prevPosRef.current.y;
         const pZ = prevPosRef.current.z;
 
         const moveDist = Math.hypot(currX - pX, currY - pY, currZ - pZ);
-        // Step every 0.16 units so particles overlap into an unbroken, solid luminous streamer
-        const numSteps = Math.max(2, Math.min(10, Math.ceil(moveDist / 0.16)));
+        // Step every 0.18 units to form a continuous luminous streamer
+        const numSteps = Math.max(2, Math.min(8, Math.ceil(moveDist / 0.18)));
 
-        // Solar wind vector: pushes ion tail away from the central Sun (0, 0, 0)
+        // Solar wind direction: pushes ion tail away from the Sun (0, 0, 0)
         const sunDist = Math.hypot(currX, currY, currZ) || 1;
         const sunDirX = currX / sunDist;
         const sunDirY = currY / sunDist;
@@ -1323,7 +1327,7 @@ const CosmicComet = memo(function CosmicComet() {
             spawnIndexRef.current = (spawnIndexRef.current + 1) % TRAIL_POOL_SIZE;
 
             const isIon = type === 0;
-            const spread = isIon ? 0.15 : (0.35 + Math.random() * 0.45);
+            const spread = isIon ? 0.12 : (0.28 + Math.random() * 0.35);
             const ang = Math.random() * Math.PI * 2;
 
             trailPositions[idx * 3] = interpX + Math.cos(ang) * spread;
@@ -1331,20 +1335,19 @@ const CosmicComet = memo(function CosmicComet() {
             trailPositions[idx * 3 + 2] = interpZ + Math.sin(ang) * spread;
 
             trailAges[idx] = 0;
-            trailLifetimes[idx] = isIon ? (1.8 + Math.random() * 0.8) : (2.8 + Math.random() * 1.2);
+            trailLifetimes[idx] = isIon ? (1.6 + Math.random() * 0.6) : (2.4 + Math.random() * 0.8);
 
-            // Ion tail streams away from Sun; Dust tail drifts along orbital path
             if (isIon) {
-              trailDrift[idx * 3] = sunDirX * 1.8 + (Math.random() - 0.5) * 0.4;
-              trailDrift[idx * 3 + 1] = sunDirY * 1.8 + (Math.random() - 0.5) * 0.4;
-              trailDrift[idx * 3 + 2] = sunDirZ * 1.8 + (Math.random() - 0.5) * 0.4;
+              trailDrift[idx * 3] = sunDirX * 1.5 + (Math.random() - 0.5) * 0.3;
+              trailDrift[idx * 3 + 1] = sunDirY * 1.5 + (Math.random() - 0.5) * 0.3;
+              trailDrift[idx * 3 + 2] = sunDirZ * 1.5 + (Math.random() - 0.5) * 0.3;
               trailColors[idx * 3] = 0.85;
               trailColors[idx * 3 + 1] = 0.98;
               trailColors[idx * 3 + 2] = 1.0;
             } else {
-              trailDrift[idx * 3] = (Math.random() - 0.5) * 0.6;
-              trailDrift[idx * 3 + 1] = (Math.random() - 0.5) * 0.5;
-              trailDrift[idx * 3 + 2] = (Math.random() - 0.5) * 0.6;
+              trailDrift[idx * 3] = (Math.random() - 0.5) * 0.5;
+              trailDrift[idx * 3 + 1] = (Math.random() - 0.5) * 0.4;
+              trailDrift[idx * 3 + 2] = (Math.random() - 0.5) * 0.5;
               trailColors[idx * 3] = 0.98;
               trailColors[idx * 3 + 1] = 0.92;
               trailColors[idx * 3 + 2] = 0.75;
@@ -1356,7 +1359,8 @@ const CosmicComet = memo(function CosmicComet() {
       prevPosRef.current = { x: currX, y: currY, z: currZ };
     } else {
       // Inactive window: head disappears
-      headPosition[1] = -9999;
+      headPositions[1] = -9999;
+      headPositions[4] = -9999;
       if (headGeoRef.current) {
         headGeoRef.current.attributes.position.needsUpdate = true;
       }
@@ -1366,7 +1370,7 @@ const CosmicComet = memo(function CosmicComet() {
       prevPosRef.current = null;
     }
 
-    // Always update all active lingering trail particles (smoothly lingering and fading in world space)
+    // Always update all active lingering trail particles
     let hasActiveParticles = false;
     for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
       if (trailAges[i] < trailLifetimes[i]) {
@@ -1386,13 +1390,13 @@ const CosmicComet = memo(function CosmicComet() {
           trailColors[i * 3 + 1] = 0;
           trailColors[i * 3 + 2] = 0;
         } else {
-          // Smooth optical decay: White-Cyan -> Cyan-Azure -> Deep Violet -> Invisible
+          // Smooth optical decay: White-Cyan -> Electric Sky Blue -> Royal Violet -> Invisible
           const fade = 1 - lifeRatio;
-          if (lifeRatio < 0.2) {
+          if (lifeRatio < 0.22) {
             trailColors[i * 3] = 0.95 * fade;
             trailColors[i * 3 + 1] = 0.98 * fade;
             trailColors[i * 3 + 2] = 1.0 * fade;
-          } else if (lifeRatio < 0.6) {
+          } else if (lifeRatio < 0.62) {
             trailColors[i * 3] = 0.22 * fade;
             trailColors[i * 3 + 1] = 0.85 * fade;
             trailColors[i * 3 + 2] = 1.0 * fade;
@@ -1413,11 +1417,11 @@ const CosmicComet = memo(function CosmicComet() {
 
   return (
     <group>
-      {/* Blazing Comet Nucleus (Point Sprite, NOT a solid sphere!) */}
-      <points>
+      {/* Blazing Comet Nucleus (Point Sprite with frustumCulled={false}) */}
+      <points frustumCulled={false}>
         <bufferGeometry ref={headGeoRef}>
-          <bufferAttribute attach="attributes-position" args={[headPosition, 3]} />
-          <bufferAttribute attach="attributes-color" args={[headColor, 3]} />
+          <bufferAttribute attach="attributes-position" args={[headPositions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[headColors, 3]} />
         </bufferGeometry>
         <pointsMaterial
           size={3.8}
@@ -1434,8 +1438,8 @@ const CosmicComet = memo(function CosmicComet() {
       {/* Point light tracking the comet head */}
       <pointLight ref={lightRef} color="#67e8f9" intensity={0} distance={45} decay={1.8} />
 
-      {/* Continuous Sub-Stepped Lingering Trail (Hangs in space then dissolves) */}
-      <points>
+      {/* Continuous Sub-Stepped Lingering Trail (frustumCulled={false}) */}
+      <points frustumCulled={false}>
         <bufferGeometry ref={tailGeoRef}>
           <bufferAttribute attach="attributes-position" args={[trailPositions, 3]} />
           <bufferAttribute attach="attributes-color" args={[trailColors, 3]} />
