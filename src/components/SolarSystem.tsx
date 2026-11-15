@@ -995,28 +995,6 @@ const DistantGalaxies = memo(function DistantGalaxies() {
       {PRECOMPUTED_GALAXIES.map((g, idx) => (
         <group key={idx} position={g.position} rotation={g.rotation} scale={g.scale}>
           <group ref={(el) => { if (el) groupRefs.current[idx] = el; }}>
-            {/* Brilliant Nuclear Core Glow */}
-            <mesh>
-              <sphereGeometry args={[g.coreRadius, 16, 16]} />
-              <meshBasicMaterial
-                color={g.coreColor}
-                transparent
-                opacity={0.92}
-                blending={THREE.AdditiveBlending}
-                depthWrite={false}
-              />
-            </mesh>
-            <mesh>
-              <sphereGeometry args={[g.coreRadius * 2.2, 16, 16]} />
-              <meshBasicMaterial
-                color={g.coreGlowColor}
-                transparent
-                opacity={0.45}
-                blending={THREE.AdditiveBlending}
-                depthWrite={false}
-              />
-            </mesh>
-
             {/* Galactic Starfield & Gas Spirals */}
             <points>
               <bufferGeometry>
