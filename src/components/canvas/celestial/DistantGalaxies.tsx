@@ -365,7 +365,7 @@ export const DistantGalaxies = memo(function DistantGalaxies() {
         <group key={idx} position={g.position} rotation={g.rotation} scale={g.scale}>
           <group ref={(el) => { if (el) groupRefs.current[idx] = el; }}>
             {/* Soft Gaseous Arm Glow */}
-            <points>
+            <points raycast={() => null}>
               <bufferGeometry>
                 <bufferAttribute attach="attributes-position" args={[g.gasPositions, 3]} />
                 <bufferAttribute attach="attributes-color" args={[g.gasColors, 3]} />
@@ -383,7 +383,7 @@ export const DistantGalaxies = memo(function DistantGalaxies() {
             </points>
 
             {/* Gleaming Star Clusters & Density Wave Arms (2600 natural stars) */}
-            <points>
+            <points raycast={() => null}>
               <bufferGeometry>
                 <bufferAttribute attach="attributes-position" args={[g.starPositions, 3]} />
                 <bufferAttribute attach="attributes-color" args={[g.starColors, 3]} />

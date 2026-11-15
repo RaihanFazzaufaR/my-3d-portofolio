@@ -156,9 +156,9 @@ export const CameraController = memo(function CameraController({
 
         const offsetDist = Math.max(12.0, selectedPlanet.size * 8.5);
 
-        // Capture from slightly left more (~33 degrees to the left of the frontal Z-axis)
-        const leftAngle = -0.58;
-        const distH = offsetDist * 0.92;
+        // Capture from slightly left side (-X) and elevated (+Y)
+        const leftAngle = -0.55; // ~31.5 degrees to the left of the frontal Z-axis for a distinct left perspective
+        const distH = offsetDist * 0.94;
         const unshiftedCamX = _worldPos.x + Math.sin(leftAngle) * distH;
         const unshiftedCamY = _worldPos.y + offsetDist * 0.44;
         const unshiftedCamZ = _worldPos.z + Math.cos(leftAngle) * distH;
@@ -170,13 +170,16 @@ export const CameraController = memo(function CameraController({
         const rightX = -(toPlanetZ / toPlanetDist);
         const rightZ = toPlanetX / toPlanetDist;
 
-        // Calculate exact horizontal shift so the planet is positioned at 30% from the left edge of the screen:
-        // With FOV = 45 deg, half-width is offsetDist * tan(22.5 deg) * aspect.
-        // Screen center is at 50%. The center of the 60% empty space is at 30% from left (i.e. -20% of screen width).
-        // In NDC (width = 2.0), -20% of total width is exactly -0.40 * W_half.
-        // 0.40 * tan(22.5 deg) = 0.40 * 0.41421356 = 0.1656854.
-        const aspect = state.viewport.aspect || (state.size.width / state.size.height) || (16 / 9);
-        const roomShift = offsetDist * 0.165685 * aspect;
+        // Exact lateral offset:
+        // The 40% card on the right leaves 60% empty space on the left.
+        // Midpoint of the 60% space is at 30% from the left edge (20% to the left of the 50% screen center).
+        // Frustum half-width at distance offsetDist: W_half = offsetDist * tan(vFov / 2) * aspect.
+        // To place the planet at 30% from the left (x = -0.40 in NDC), shift the camera target right by 0.40 * W_half.
+        const perspCam = state.camera as THREE.PerspectiveCamera;
+        const vFovRad = ((perspCam.fov || 45) * Math.PI) / 180;
+        const aspect = perspCam.aspect || (window.innerWidth / window.innerHeight);
+        const frustumHalfWidth = offsetDist * Math.tan(vFovRad / 2) * aspect;
+        const roomShift = 0.40 * frustumHalfWidth;
 
         _camTarget.set(
           _worldPos.x + rightX * roomShift,
@@ -196,7 +199,8 @@ export const CameraController = memo(function CameraController({
 
           if (controls.target.distanceTo(_camTarget) < 0.25) {
             isTransitioningRef.current = false;
-            prevPlanetPosRef.current = _camTarget.clone();
+            if (!prevPlanetPosRef.current) prevPlanetPosRef.current = new THREE.Vector3();
+            prevPlanetPosRef.current.copy(_camTarget);
           }
         } else {
           if (prevPlanetPosRef.current) {
@@ -205,7 +209,7 @@ export const CameraController = memo(function CameraController({
             state.camera.position.add(_deltaMove);
             prevPlanetPosRef.current.copy(_camTarget);
           } else {
-            prevPlanetPosRef.current = _camTarget.clone();
+            prevPlanetPosRef.current = new THREE.Vector3().copy(_camTarget);
           }
         }
 

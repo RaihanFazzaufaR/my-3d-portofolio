@@ -151,7 +151,7 @@ export const CosmicNebulae = memo(function CosmicNebulae() {
       {PRECOMPUTED_NEBULAE.map((neb, idx) => (
         <group key={idx} position={neb.position} rotation={neb.rotation}>
           <group ref={(el) => { if (el) groupRefs.current[idx] = el; }}>
-            <points>
+            <points raycast={() => null}>
               <bufferGeometry>
                 <bufferAttribute
                   attach="attributes-position"

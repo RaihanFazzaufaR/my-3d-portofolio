@@ -70,7 +70,7 @@ export const CosmicGalaxy = memo(function CosmicGalaxy() {
 
   return (
     <group ref={galaxyRef} rotation={[0.42, 0.25, 0.15]}>
-      <points>
+      <points raycast={() => null}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"

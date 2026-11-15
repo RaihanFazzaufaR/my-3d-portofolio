@@ -53,7 +53,7 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
       </mesh>
 
       {/* Corona Glow Shell with Additive Blending */}
-      <mesh scale={1.15}>
+      <mesh scale={1.15} raycast={() => null}>
         <sphereGeometry args={[3.2, 32, 32]} />
         <meshBasicMaterial
           color="#f59e0b"
@@ -64,7 +64,7 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
         />
       </mesh>
 
-      {/* Sci-Fi Target Identification HUD for Sun Core (preview on hover when not selected) */}
+      {/* Sci-Fi Target Identification HUD for Sun Core (Visible only on hover when not selected) */}
       {!isSunSelected && sunHovered && (
         <Html
           position={[0, 3.4, 0]}
@@ -77,7 +77,7 @@ export const Sun = memo(function Sun({ isSunSelected, onSelectSun }: SunProps) {
               backgroundColor: 'rgba(5, 8, 22, 0.95)',
               borderColor: 'rgba(245, 158, 11, 0.7)',
               boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)',
-              transform: isSunSelected ? 'translate(-75%, -70%)' : 'translate(0, -60%)',
+              transform: 'translate(0, -60%)',
             }}
           >
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 mb-2">

@@ -36,7 +36,7 @@ export const PlanetMoons = memo(function PlanetMoons({ moons, simulationSpeed }:
       {moons.map((moon, i) => (
         <group key={moon.name} rotation={[moon.inclination || 0, 0, (moon.inclination || 0) * 0.35]}>
           {/* Faint Orbit Ring for Moon */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
             <ringGeometry args={[moon.distance - 0.02, moon.distance + 0.02, 64]} />
             <meshBasicMaterial
               color={moon.color || '#94a3b8'}
@@ -48,6 +48,7 @@ export const PlanetMoons = memo(function PlanetMoons({ moons, simulationSpeed }:
 
           {/* Moon Celestial Body */}
           <mesh
+            raycast={() => null}
             ref={(el) => {
               moonRefs.current[i] = el;
             }}
@@ -150,7 +151,7 @@ export const Planet = memo(function Planet({
   return (
     <>
       {/* Orbit Ring with subtle glowing path */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
         <ringGeometry args={[planet.distance - 0.04, planet.distance + 0.04, 128]} />
         <meshBasicMaterial
           color={isSelected ? planet.color : '#ffffff'}
@@ -182,7 +183,7 @@ export const Planet = memo(function Planet({
         </mesh>
 
         {/* Atmosphere Glow Aura Outer Shell */}
-        <mesh scale={1.08}>
+        <mesh scale={1.08} raycast={() => null}>
           <sphereGeometry args={[planet.size, 32, 32]} />
           <meshBasicMaterial
             color={textures.atmosphereColor}
@@ -195,7 +196,7 @@ export const Planet = memo(function Planet({
 
         {/* Planetary Ring (e.g. Saturn-like for Lab planet) */}
         {planet.hasRing && (
-          <mesh rotation={[Math.PI / 3, Math.PI / 8, 0]}>
+          <mesh rotation={[Math.PI / 3, Math.PI / 8, 0]} raycast={() => null}>
             <ringGeometry args={[planet.size * 1.35, planet.size * 2.3, 64]} />
             <meshStandardMaterial
               color={textures.atmosphereColor}
@@ -215,7 +216,7 @@ export const Planet = memo(function Planet({
           <PlanetMoons moons={planet.moons} simulationSpeed={simulationSpeed} />
         )}
 
-        {/* Sci-Fi Target Identification HUD (preview on hover when not selected) */}
+        {/* Sci-Fi Target Identification HUD (Visible only on hover when not selected) */}
         {!isSelected && isHovered && (
           <Html
             position={[0, planet.size + 0.35, 0]}
@@ -228,7 +229,7 @@ export const Planet = memo(function Planet({
                 backgroundColor: 'rgba(5, 8, 22, 0.95)',
                 borderColor: `${planet.color}99`,
                 boxShadow: `0 4px 20px ${planet.color}30`,
-                transform: isSelected ? 'translate(-75%, -70%)' : 'translate(0, -60%)',
+                transform: 'translate(0, -60%)',
               }}
             >
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5 mb-2">

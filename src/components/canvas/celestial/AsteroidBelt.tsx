@@ -31,7 +31,7 @@ export const AsteroidBelt = memo(function AsteroidBelt() {
   });
 
   return (
-    <points ref={pointsRef}>
+    <points ref={pointsRef} raycast={() => null}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"

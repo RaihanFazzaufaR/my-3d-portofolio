@@ -65,12 +65,15 @@ export const RealisticBackgroundStars = memo(function RealisticBackgroundStars()
       groupRef.current.rotation.y += delta * 0.0012;
       groupRef.current.rotation.x += delta * 0.0006;
     }
+    if (tier1MatRef.current) {
+      tier1MatRef.current.opacity = 0.92 + Math.sin(Date.now() * 0.003) * 0.08;
+    }
   });
 
   return (
     <group ref={groupRef}>
       {/* Tier 1: Prominent Bright Stars */}
-      <points>
+      <points raycast={() => null}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[STAR_TIER1.positions, 3]} />
           <bufferAttribute attach="attributes-color" args={[STAR_TIER1.colors, 3]} />
@@ -89,7 +92,7 @@ export const RealisticBackgroundStars = memo(function RealisticBackgroundStars()
       </points>
 
       {/* Tier 2: Medium Constellation Stars */}
-      <points>
+      <points raycast={() => null}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[STAR_TIER2.positions, 3]} />
           <bufferAttribute attach="attributes-color" args={[STAR_TIER2.colors, 3]} />
@@ -107,7 +110,7 @@ export const RealisticBackgroundStars = memo(function RealisticBackgroundStars()
       </points>
 
       {/* Tier 3: Deep Space Cosmic Stardust Stars */}
-      <points>
+      <points raycast={() => null}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[STAR_TIER3.positions, 3]} />
           <bufferAttribute attach="attributes-color" args={[STAR_TIER3.colors, 3]} />

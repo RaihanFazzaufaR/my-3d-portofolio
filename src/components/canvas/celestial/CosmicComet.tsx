@@ -227,7 +227,7 @@ export const CosmicComet = memo(function CosmicComet() {
   return (
     <group>
       {/* Blazing Comet Nucleus (Point Sprite with frustumCulled={false}) */}
-      <points frustumCulled={false}>
+      <points frustumCulled={false} raycast={() => null}>
         <bufferGeometry ref={headGeoRef}>
           <bufferAttribute attach="attributes-position" args={[headPositions, 3]} />
           <bufferAttribute attach="attributes-color" args={[headColors, 3]} />
@@ -248,7 +248,7 @@ export const CosmicComet = memo(function CosmicComet() {
       <pointLight ref={lightRef} color="#67e8f9" intensity={0} distance={45} decay={1.8} />
 
       {/* Continuous Sub-Stepped Lingering Trail (frustumCulled={false}) */}
-      <points frustumCulled={false}>
+      <points frustumCulled={false} raycast={() => null}>
         <bufferGeometry ref={tailGeoRef}>
           <bufferAttribute attach="attributes-position" args={[trailPositions, 3]} />
           <bufferAttribute attach="attributes-color" args={[trailColors, 3]} />
