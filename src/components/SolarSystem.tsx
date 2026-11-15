@@ -481,10 +481,10 @@ interface NebulaSpec {
 const NEBULA_COUNT_PER_CLUSTER = 260;
 
 const NEBULA_SPECS: NebulaSpec[] = [
-  // 1. Carina Nebula (Cosmic Cliffs) - Rich Magenta, Rose & Deep Violet
+  // 1. Carina Nebula (Cosmic Cliffs) - Positioned in the North celestial sky (Dist: 145 AU)
   {
     name: 'Carina',
-    position: [-165, 95, -140],
+    position: [0, 61, 131],
     rotation: [0.35, -0.2, 0.45],
     radius: 38,
     speed: 0.0016,
@@ -496,10 +496,10 @@ const NEBULA_SPECS: NebulaSpec[] = [
     ],
     seedOffset: 12.345,
   },
-  // 2. Orion Nebula (Stellar Nursery) - Electric Cyan, Azure & Deep Turquoise
+  // 2. Orion Nebula (Stellar Nursery) - Positioned in the East celestial sky (Dist: 150 AU)
   {
     name: 'Orion',
-    position: [175, 110, -125],
+    position: [139, -56, 0],
     rotation: [-0.4, 0.5, -0.3],
     radius: 36,
     speed: -0.0014,
@@ -511,10 +511,10 @@ const NEBULA_SPECS: NebulaSpec[] = [
     ],
     seedOffset: 27.891,
   },
-  // 3. Eagle Nebula (Pillars of Creation) - Warm Amber, Bronze Gold & Emerald Gas
+  // 3. Eagle Nebula (Pillars of Creation) - Positioned in the South celestial sky (Dist: 148 AU)
   {
     name: 'Eagle',
-    position: [155, -90, 160],
+    position: [0, 69, -131],
     rotation: [0.6, -0.35, 0.2],
     radius: 40,
     speed: 0.0018,
@@ -526,10 +526,10 @@ const NEBULA_SPECS: NebulaSpec[] = [
     ],
     seedOffset: 41.567,
   },
-  // 4. Veil Nebula (Supernova Remnant) - Electric Coral Red, Velvet Violet & Ice Blue
+  // 4. Veil Nebula (Supernova Remnant) - Positioned in the West celestial sky (Dist: 145 AU)
   {
     name: 'Veil',
-    position: [-170, -100, 150],
+    position: [-131, -61, 0],
     rotation: [-0.5, -0.45, 0.6],
     radius: 37,
     speed: -0.0015,
@@ -670,95 +670,95 @@ interface GalaxySpec {
 }
 
 const GALAXY_SPECS: GalaxySpec[] = [
-  // 1. Andromeda Spiral (North-West Deep Space) - Brilliant Gold Core, Electric Violet & Cyan Arms
+  // 1. Andromeda Spiral (North-East Deep Space - Dist: 250 AU) - Brilliant Gold Core, Electric Violet & Cyan Arms
   {
     name: 'Andromeda',
     type: 'spiral',
-    posOffset: [-185, 90, -195],
+    posOffset: [145, 143, 145],
     rotation: [0.65, -0.45, 0.3],
-    scale: 1.35,
+    scale: 1.55,
     speed: 0.003,
     axis: 'z',
     seedOffset: 7.713,
-    radius: 46,
+    radius: 48,
     colorScheme: 'andromeda-violet-cyan',
   },
-  // 2. Whirlpool Grand Spiral (North-East Deep Space) - Diamond Core, Neon Emerald & Azure
+  // 2. Whirlpool Grand Spiral (South-East Deep Space - Dist: 260 AU) - Diamond Core, Neon Emerald & Azure
   {
     name: 'Whirlpool',
     type: 'spiral',
-    posOffset: [205, 100, -185],
+    posOffset: [159, 130, -159],
     rotation: [-0.55, 0.65, -0.4],
-    scale: 1.3,
+    scale: 1.5,
     speed: -0.0032,
     axis: 'z',
     seedOffset: 19.341,
-    radius: 44,
+    radius: 46,
     colorScheme: 'whirlpool-azure-emerald',
   },
-  // 3. Sombrero Barred Galaxy (South-West Deep Space) - Luminous Amber & Crimson Dust Band
+  // 3. Sombrero Barred Galaxy (South-West Deep Space - Dist: 255 AU) - Luminous Amber & Crimson Dust Band
   {
     name: 'Sombrero',
     type: 'barred',
-    posOffset: [-210, -85, 180],
+    posOffset: [-156, -127, -156],
     rotation: [0.85, 0.35, -0.6],
-    scale: 1.4,
+    scale: 1.55,
     speed: 0.0026,
     axis: 'y',
     seedOffset: 31.879,
-    radius: 48,
+    radius: 50,
     colorScheme: 'sombrero-amber-rose',
   },
-  // 4. Triangulum Pinwheel (South-East Deep Space) - Lavender, Ultraviolet & Sky Blue
+  // 4. Triangulum Pinwheel (North-West Deep Space - Dist: 245 AU) - Lavender, Ultraviolet & Sky Blue
   {
     name: 'Triangulum',
     type: 'spiral',
-    posOffset: [195, -95, 205],
+    posOffset: [-153, -115, 153],
     rotation: [-0.75, -0.45, 0.5],
-    scale: 1.25,
+    scale: 1.45,
     speed: -0.003,
     axis: 'x',
     seedOffset: 43.215,
-    radius: 40,
+    radius: 42,
     colorScheme: 'triangulum-lavender-sky',
   },
-  // 5. Cartwheel Ring Galaxy - Golden Hub with Radiating Spokes and Vivid Rose Starburst Ring
+  // 5. Cartwheel Ring Galaxy (Deep Southern Sky - Dist: 270 AU) - Golden Hub with Radiating Spokes and Vivid Rose Starburst Ring
   {
     name: 'Cartwheel',
     type: 'ring',
-    posOffset: [-145, -120, -195],
+    posOffset: [71, -174, -194],
     rotation: [0.45, 0.7, -0.35],
-    scale: 1.25,
+    scale: 1.45,
     speed: 0.0035,
     axis: 'z',
     seedOffset: 57.123,
-    radius: 38,
+    radius: 40,
     colorScheme: 'cartwheel-sapphire-ruby',
   },
-  // 6. Centaurus Active Lenticular - Fiery Plasma Jets & Cosmic Indigo Bulge
+  // 6. Centaurus Active Lenticular (North-West High - Dist: 265 AU) - Fiery Plasma Jets & Cosmic Indigo Bulge
   {
     name: 'Centaurus',
     type: 'active',
-    posOffset: [215, 55, 140],
+    posOffset: [-191, 170, 69],
     rotation: [-0.65, 0.3, 0.55],
-    scale: 1.35,
+    scale: 1.5,
     speed: -0.0026,
     axis: 'y',
     seedOffset: 68.914,
-    radius: 44,
+    radius: 46,
     colorScheme: 'centaurus-fire-indigo',
   },
-  // 7. Helix Cyber Spiral (Zenith Deep Space) - Intense Neon Cyan & Neon Magenta Arms
+  // 7. Helix Cyber Spiral (High Overhead Zenith - Dist: 255 AU) - Intense Neon Cyan & Neon Magenta Arms
   {
     name: 'Helix',
     type: 'spiral',
-    posOffset: [40, 185, 175],
+    posOffset: [101, 231, 37],
     rotation: [0.95, -0.3, 0.6],
-    scale: 1.3,
+    scale: 1.5,
     speed: 0.0032,
     axis: 'z',
     seedOffset: 82.441,
-    radius: 42,
+    radius: 44,
     colorScheme: 'helix-neon-cyber',
   },
 ];
@@ -1053,11 +1053,11 @@ const DistantGalaxies = memo(function DistantGalaxies() {
                 />
               </bufferGeometry>
               <pointsMaterial
-                size={8.5}
+                size={9.8}
                 map={nebulaTexture}
                 vertexColors
                 transparent
-                opacity={0.36}
+                opacity={0.38}
                 sizeAttenuation
                 blending={THREE.AdditiveBlending}
                 depthWrite={false}
@@ -1077,11 +1077,11 @@ const DistantGalaxies = memo(function DistantGalaxies() {
                 />
               </bufferGeometry>
               <pointsMaterial
-                size={1.35}
+                size={1.55}
                 map={particleTexture}
                 vertexColors
                 transparent
-                opacity={0.96}
+                opacity={0.98}
                 sizeAttenuation
                 blending={THREE.AdditiveBlending}
                 depthWrite={false}
