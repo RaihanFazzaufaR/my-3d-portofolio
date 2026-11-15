@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  --font-scifi: 'Orbitron', 'Share Tech Mono', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #050816;
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: normal;
+  user-select: none;
+}
+
+/* GPU hardware layer isolation for HUD overlay elements to ensure 60fps parity with Cinema mode */
+.hud-layer {
+  contain: layout style;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
