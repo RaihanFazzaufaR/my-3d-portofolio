@@ -22,9 +22,7 @@ body,
   user-select: none;
 }
 
-/* GPU hardware layer isolation for HUD overlay elements to ensure 60fps parity with Cinema mode */
+/* Optimized HUD layer: contain layout and style without forcing excessive GPU texture allocation */
 .hud-layer {
   contain: layout style;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }

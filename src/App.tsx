@@ -286,7 +286,7 @@ export default function App() {
           {/* Top Bar: Telemetry, Branding & Planet Quick Nav */}
           <header className="absolute top-0 left-0 right-0 p-3 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pointer-events-none">
             {/* Branding & Telemetry Header */}
-            <div className="pointer-events-auto transform-gpu flex items-center gap-3 bg-slate-950/92 px-4 py-2.5 rounded-2xl border border-slate-800 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer">
+            <div className="pointer-events-auto flex items-center gap-3 bg-slate-950/92 px-4 py-2.5 rounded-2xl border border-slate-800 shadow-md">
               <button
                 type="button"
                 onClick={handleSelectSun}
@@ -313,7 +313,7 @@ export default function App() {
             </div>
 
             {/* Quick Planet Selector Tabs */}
-            <div className="pointer-events-auto transform-gpu flex items-center gap-1.5 p-1 bg-slate-950/92 rounded-2xl border border-slate-800 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer overflow-x-auto max-w-full">
+            <div className="pointer-events-auto flex items-center gap-1.5 p-1 bg-slate-950/92 rounded-2xl border border-slate-800 shadow-md overflow-x-auto max-w-full">
               {/* Sun / Core Tab */}
               <button
                 type="button"
@@ -362,7 +362,7 @@ export default function App() {
             </div>
 
             {/* Simulation Controls (Speed, Sound, View Mode) */}
-            <div className="pointer-events-auto transform-gpu flex items-center gap-1.5 p-1 bg-slate-950/92 rounded-2xl border border-slate-800 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer text-xs">
+            <div className="pointer-events-auto flex items-center gap-1.5 p-1 bg-slate-950/92 rounded-2xl border border-slate-800 shadow-md text-xs">
               {/* Sound Toggle */}
               <button
                 type="button"
@@ -440,7 +440,7 @@ export default function App() {
 
           {/* Left Telemetry HUD Card (Displays details on hover or lock) */}
           <aside className="absolute left-4 md:left-8 bottom-24 pointer-events-none hidden sm:block">
-            <div className="pointer-events-auto transform-gpu bg-slate-950/92 p-4 rounded-2xl border border-slate-800 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer w-64 text-xs font-mono">
+            <div className="pointer-events-auto bg-slate-950/92 p-4 rounded-2xl border border-slate-800 shadow-md w-64 text-xs font-mono">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-slate-400">
                 <span className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
@@ -503,7 +503,7 @@ export default function App() {
 
           {/* Interactive Observatory Radar (Bottom Left Mini-map) */}
           <div className="absolute left-4 bottom-4 pointer-events-none hidden lg:block">
-            <div className="pointer-events-auto transform-gpu bg-slate-950/92 p-3 rounded-2xl border border-slate-800 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer flex items-center gap-3">
+            <div className="pointer-events-auto bg-slate-950/92 p-3 rounded-2xl border border-slate-800 shadow-md flex items-center gap-3">
               <svg width="68" height="68" viewBox="-30 -30 60 60" className="overflow-visible">
                 {/* Radar Grid Circles */}
                 <circle cx="0" cy="0" r="28" fill="none" stroke="#334155" strokeWidth="0.8" strokeDasharray="2,2" />
@@ -570,7 +570,7 @@ export default function App() {
               role="dialog"
               aria-modal="true"
               aria-label="Commander Bio"
-              className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.7)] transition-all duration-300 animate-in fade-in slide-in-from-right-6 transform-gpu pointer-events-auto hud-layer"
+              className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-amber-500/40 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
             >
               <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -666,7 +666,7 @@ export default function App() {
               role="dialog"
               aria-modal="true"
               aria-label={selectedPlanet.name}
-              className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[440px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.7)] transition-all duration-300 animate-in fade-in slide-in-from-right-6 transform-gpu pointer-events-auto hud-layer"
+              className="absolute top-20 right-4 md:right-8 w-[calc(100vw-2rem)] sm:w-[440px] max-h-[calc(100vh-7rem)] flex flex-col overflow-hidden bg-slate-950/95 border border-slate-700/80 rounded-3xl shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-right-6 pointer-events-auto"
             >
               {/* Header (Sticky / Fixed at top) */}
               <div className="p-6 pb-4 border-b border-slate-800 shrink-0 bg-slate-950/95 flex items-start justify-between">
@@ -1058,7 +1058,7 @@ export default function App() {
 
           {/* Bottom HUD Hint Bar */}
           <footer className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none px-4">
-            <div className="pointer-events-auto transform-gpu flex items-center gap-2 md:gap-3 px-4 py-2 bg-slate-950/92 rounded-full border border-slate-800 text-[11px] md:text-xs text-slate-400 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hud-layer font-mono">
+            <div className="pointer-events-auto flex items-center gap-2 md:gap-3 px-4 py-2 bg-slate-950/92 rounded-full border border-slate-800 text-[11px] md:text-xs text-slate-400 shadow-md font-mono">
               <span>Drag to rotate</span>
               <span className="text-slate-700">•</span>
               <span>Scroll to zoom</span>

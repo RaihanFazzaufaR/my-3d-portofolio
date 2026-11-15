@@ -1226,17 +1226,19 @@ const CosmicComet = memo(function CosmicComet() {
   const headColors = useMemo(() => new Float32Array([1.0, 1.0, 1.0, 0.4, 0.9, 1.0]), []);
 
   // Pre-allocated circular pool for trail particles (zero GC)
-  const { trailPositions, trailColors, trailAges, trailLifetimes, trailDrift } = useMemo(() => {
+  const { trailPositions, trailColors, trailAges, trailLifetimes, trailDrift, trailScales } = useMemo(() => {
     const pos = new Float32Array(TRAIL_POOL_SIZE * 3);
     const col = new Float32Array(TRAIL_POOL_SIZE * 3);
     const ages = new Float32Array(TRAIL_POOL_SIZE);
     const lifes = new Float32Array(TRAIL_POOL_SIZE);
     const drift = new Float32Array(TRAIL_POOL_SIZE * 3);
+    const scales = new Float32Array(TRAIL_POOL_SIZE);
 
     for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
       pos[i * 3 + 1] = -9999;
       ages[i] = 9999;
       lifes[i] = 2.6;
+      scales[i] = 1;
     }
 
     return {
@@ -1245,6 +1247,7 @@ const CosmicComet = memo(function CosmicComet() {
       trailAges: ages,
       trailLifetimes: lifes,
       trailDrift: drift,
+      trailScales: scales,
     };
   }, []);
 
@@ -1270,6 +1273,13 @@ const CosmicComet = memo(function CosmicComet() {
       const p = cycleTime / STREAK_DURATION; // 0 to 1
       const u = (p - 0.5) * 2; // -1 to 1
 
+      // Smooth Hermite envelope for seamless Fade-In on entry and Fade-Out on exit
+      const fadeIn = Math.min(1, p / 0.16);
+      const fadeOut = Math.min(1, (1 - p) / 0.16);
+      const sIn = fadeIn * fadeIn * (3 - 2 * fadeIn);
+      const sOut = fadeOut * fadeOut * (3 - 2 * fadeOut);
+      const envelope = Math.max(0, sIn * sOut);
+
       // Hyperbolic swoop through solar system space
       // Closest approach u=0 dips to (0, -12, 28) right in front of camera
       const rawX = u * 115;
@@ -1282,7 +1292,7 @@ const CosmicComet = memo(function CosmicComet() {
       const currZ = rawX * sinA + rawZ * cosA;
       const currY = rawY;
 
-      // Update head points (both core and coma)
+      // Update head points (both core and coma) with fade envelope
       headPositions[0] = currX;
       headPositions[1] = currY;
       headPositions[2] = currZ;
@@ -1290,13 +1300,21 @@ const CosmicComet = memo(function CosmicComet() {
       headPositions[4] = currY;
       headPositions[5] = currZ;
 
+      headColors[0] = 1.0 * envelope;
+      headColors[1] = 1.0 * envelope;
+      headColors[2] = 1.0 * envelope;
+      headColors[3] = 0.4 * envelope;
+      headColors[4] = 0.9 * envelope;
+      headColors[5] = 1.0 * envelope;
+
       if (headGeoRef.current) {
         headGeoRef.current.attributes.position.needsUpdate = true;
+        headGeoRef.current.attributes.color.needsUpdate = true;
       }
 
       if (lightRef.current) {
         lightRef.current.position.set(currX, currY, currZ);
-        lightRef.current.intensity = (1 - Math.abs(u) * 0.7) * 4.8;
+        lightRef.current.intensity = envelope * (1 - Math.abs(u) * 0.7) * 4.8;
       }
 
       // SUB-STEP INTERPOLATION: Eliminates discrete dot spawning gaps!
@@ -1336,6 +1354,7 @@ const CosmicComet = memo(function CosmicComet() {
 
             trailAges[idx] = 0;
             trailLifetimes[idx] = isIon ? (1.6 + Math.random() * 0.6) : (2.4 + Math.random() * 0.8);
+            trailScales[idx] = envelope;
 
             if (isIon) {
               trailDrift[idx * 3] = sunDirX * 1.5 + (Math.random() - 0.5) * 0.3;
@@ -1391,7 +1410,7 @@ const CosmicComet = memo(function CosmicComet() {
           trailColors[i * 3 + 2] = 0;
         } else {
           // Smooth optical decay: White-Cyan -> Electric Sky Blue -> Royal Violet -> Invisible
-          const fade = 1 - lifeRatio;
+          const fade = (1 - lifeRatio) * trailScales[i];
           if (lifeRatio < 0.22) {
             trailColors[i * 3] = 0.95 * fade;
             trailColors[i * 3 + 1] = 0.98 * fade;
